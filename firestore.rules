@@ -2,41 +2,11 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper function to determine if the user is an administrator.
-    // For this app, we consider any authenticated user as an admin.
     function isAdmin() {
       return request.auth != null;
     }
 
-    // --- Publicly readable collections ---
-    // The `allow read` rule includes both `get` (single document) and `list` (collection query) operations.
-
-    // Projects: Anyone can read, only admins can write.
-    match /projects/{projectId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-
-    // Profile: Anyone can read, only admins can write.
-    match /profile/{profileId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-
-    // Social Links: Anyone can read, only admins can write.
-    match /social_links/{socialLinkId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-    
-    // Articles: Anyone can read, only admins can write.
-    match /articles/{articleId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-
-    // CV: Anyone can read, only admins can write.
-    match /cv/{cvId} {
+    match /{document=**} {
       allow read: if true;
       allow write: if isAdmin();
     }
