@@ -74,7 +74,7 @@ export function FirebaseStorageUploader({
         className="hidden"
         accept={acceptedFileTypes}
       />
-      <Button variant="outline" className="w-full" onClick={handleFileSelect}>
+      <Button type="button" variant="outline" className="w-full" onClick={handleFileSelect}>
         <Upload className="mr-2 h-4 w-4" />
         {label}
       </Button>
