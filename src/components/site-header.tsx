@@ -3,12 +3,12 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { UserCircle, Menu, X } from "lucide-react";
+import { UserCircle, Menu, X, LayoutDashboard } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "./theme-toggle";
-import { useDoc, useFirestore, useMemoFirebase } from "@/firebase";
+import { useDoc, useFirestore, useMemoFirebase, useUser } from "@/firebase";
 import { doc } from "firebase/firestore";
 import type { Profile } from "@/lib/types";
 
@@ -16,6 +16,7 @@ export function SiteHeader() {
   const [isScrolled, setIsScrolled] = React.useState(false);
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const pathname = usePathname();
+  const { user } = useUser();
 
   const firestore = useFirestore();
   const profileRef = useMemoFirebase(
@@ -88,6 +89,18 @@ export function SiteHeader() {
                 {link.label}
               </Link>
             ))}
+             {user && (
+                <Link
+                    href="/admin"
+                    className={cn(
+                        "transition-colors hover:text-primary flex items-center gap-2",
+                        pathname.startsWith('/admin') ? "text-primary font-semibold" : "text-foreground/60"
+                    )}
+                >
+                    <LayoutDashboard className="h-4 w-4" />
+                    Dashboard
+                </Link>
+            )}
           </nav>
           
           <div className="flex items-center justify-end">
@@ -113,6 +126,19 @@ export function SiteHeader() {
                       {link.label}
                     </Link>
                 ))}
+                 {user && (
+                    <Link
+                        href="/admin"
+                         onClick={() => setIsMenuOpen(false)}
+                        className={cn(
+                            "text-lg transition-colors hover:text-primary flex items-center gap-2",
+                            pathname.startsWith('/admin') ? "text-primary font-semibold" : "text-foreground/80"
+                        )}
+                    >
+                        <LayoutDashboard className="h-5 w-5" />
+                        Dashboard
+                    </Link>
+                )}
             </nav>
         </div>
       )}
