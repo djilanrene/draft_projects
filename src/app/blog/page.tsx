@@ -107,7 +107,6 @@ export default function BlogPage() {
 
       <AnimatePresence>
         <motion.div 
-            layout 
             className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
