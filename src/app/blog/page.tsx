@@ -51,23 +51,27 @@ export default function BlogPage() {
   const firestore = useFirestore();
 
   const articlesQuery = useMemoFirebase(
-    () => (firestore ? query(collection(firestore, "articles"), where("published", "!=", false), orderBy("publishedDate", "desc")) : null),
+    () => (firestore ? query(collection(firestore, "articles"), orderBy("publishedDate", "desc")) : null),
     [firestore]
   );
   const { data: articles, isLoading } = useCollection<Article>(articlesQuery);
+  
+  const publishedArticles = React.useMemo(() => {
+    return articles?.filter(a => a.published !== false) || [];
+  }, [articles]);
 
   const filteredArticles = React.useMemo(() => {
-    if (!articles) return [];
+    if (!publishedArticles) return [];
     if (!searchTerm) {
-      return articles;
+      return publishedArticles;
     }
     const lowercasedTerm = searchTerm.toLowerCase();
-    return articles.filter(article =>
+    return publishedArticles.filter(article =>
       article.title.toLowerCase().includes(lowercasedTerm) ||
       article.excerpt.toLowerCase().includes(lowercasedTerm) ||
       (article.tags && article.tags.some(tag => tag.toLowerCase().includes(lowercasedTerm)))
     );
-  }, [searchTerm, articles]);
+  }, [searchTerm, publishedArticles]);
 
   const Skeletons = () => (
     <>

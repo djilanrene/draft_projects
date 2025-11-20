@@ -16,7 +16,7 @@ export default function Home() {
   const firestore = useFirestore();
 
   const projectsQuery = useMemoFirebase(
-    () => (firestore ? query(collection(firestore, "projects"), where("published", "!=", false), orderBy("published", "desc")) : null),
+    () => (firestore ? query(collection(firestore, "projects"), orderBy("published", "desc")) : null),
     [firestore]
   );
   const { data: projects, isLoading } = useCollection<Project>(projectsQuery);
@@ -27,19 +27,24 @@ export default function Home() {
     { text: "Automatiser", className: "text-primary" },
     { text: "Publier", className: "text-primary" },
   ];
+  
+  const publishedProjects = React.useMemo(() => {
+    return projects?.filter(p => p.published !== false) || [];
+  }, [projects]);
+
 
   const filteredProjects = React.useMemo(() => {
-    if (!projects) return [];
+    if (!publishedProjects) return [];
     if (!searchTerm) {
-      return projects;
+      return publishedProjects;
     }
-    return projects.filter(project =>
+    return publishedProjects.filter(project =>
       project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       project.excerpt.toLowerCase().includes(searchTerm.toLowerCase()) ||
       project.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (project.software && project.software.some(s => s.toLowerCase().includes(searchTerm.toLowerCase())))
     );
-  }, [searchTerm, projects]);
+  }, [searchTerm, publishedProjects]);
 
   const ProjectSkeletons = () => (
     <>
