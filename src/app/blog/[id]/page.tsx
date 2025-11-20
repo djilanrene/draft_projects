@@ -8,24 +8,7 @@ import type { Article } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-
-// This is a simple markdown-to-html converter.
-// For a real app, you might want to use a more robust library like 'marked' or 'react-markdown'.
-function SimpleMarkdown({ content }: { content: string }) {
-    const htmlContent = content
-        .split('\n')
-        .map(line => {
-            if (line.startsWith('### ')) return `<h3>${line.substring(4)}</h3>`;
-            if (line.startsWith('## ')) return `<h2>${line.substring(3)}</h2>`;
-            if (line.startsWith('# ')) return `<h1>${line.substring(2)}</h1>`;
-            if (line.trim() === '') return '<br />';
-            return `<p>${line}</p>`;
-        })
-        .join('');
-
-    return <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: htmlContent }} />;
-}
-
+import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 
 export default function ArticlePage({ params }: { params: { id: string } }) {
   const firestore = useFirestore();
@@ -70,8 +53,8 @@ export default function ArticlePage({ params }: { params: { id: string } }) {
         />
       </div>
       
-      <div className="space-y-6 text-lg text-foreground/80">
-        <SimpleMarkdown content={article.content} />
+      <div className="mx-auto">
+        <MarkdownRenderer content={article.content} />
       </div>
 
     </article>

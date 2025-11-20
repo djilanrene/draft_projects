@@ -12,24 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Github, Globe } from "lucide-react";
 import type { Project } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
-
-// This is a simple markdown-to-html converter.
-// For a real app, you might want to use a more robust library like 'marked' or 'react-markdown'.
-function SimpleMarkdown({ content }: { content: string }) {
-    const htmlContent = content
-        .split('\n')
-        .map(line => {
-            if (line.startsWith('### ')) return `<h3>${line.substring(4)}</h3>`;
-            if (line.startsWith('## ')) return `<h2>${line.substring(3)}</h2>`;
-            if (line.startsWith('# ')) return `<h1>${line.substring(2)}</h1>`;
-            if (line.trim() === '') return '<br />';
-            return `<p>${line}</p>`;
-        })
-        .join('');
-
-    return <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: htmlContent }} />;
-}
-
+import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 
 const resourceIcons = {
   website: Globe,
@@ -109,8 +92,8 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
 
       <Separator className="my-12" />
 
-      <div className="max-w-4xl mx-auto space-y-6 text-lg text-foreground/80">
-        <SimpleMarkdown content={project.content} />
+      <div className="max-w-4xl mx-auto">
+        <MarkdownRenderer content={project.content} />
       </div>
     </div>
   );
