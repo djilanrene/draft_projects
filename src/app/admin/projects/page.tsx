@@ -372,7 +372,7 @@ function ProjectsList() {
   const [searchTerm, setSearchTerm] = React.useState("");
 
   const projectsQuery = useMemoFirebase(
-    () => (firestore ? query(collection(firestore, "projects"), orderBy("createdAt", "desc")) : null),
+    () => (firestore ? query(collection(firestore, "projects")) : null),
     [firestore]
   );
   const { data: projects, isLoading } = useCollection<Project>(projectsQuery);

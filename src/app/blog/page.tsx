@@ -21,7 +21,7 @@ function ArticleCard({ article }: { article: Article }) {
       <Card className="flex h-full flex-col overflow-hidden transition-transform duration-300 hover:scale-105 hover:shadow-xl">
         <CardContent className="p-0">
            <Image
-              src={article.imageUrl}
+              src={article.imageUrl || 'https://placehold.co/600x400/27272a/94a3b8?text=Image'}
               alt={article.title}
               data-ai-hint={article.imageHint}
               width={600}
@@ -51,7 +51,7 @@ export default function BlogPage() {
   const firestore = useFirestore();
 
   const articlesQuery = useMemoFirebase(
-    () => (firestore ? query(collection(firestore, "articles"), where("published", "==", true), orderBy("publishedDate", "desc")) : null),
+    () => (firestore ? query(collection(firestore, "articles"), where("published", "!=", false), orderBy("publishedDate", "desc")) : null),
     [firestore]
   );
   const { data: articles, isLoading } = useCollection<Article>(articlesQuery);
@@ -65,7 +65,7 @@ export default function BlogPage() {
     return articles.filter(article =>
       article.title.toLowerCase().includes(lowercasedTerm) ||
       article.excerpt.toLowerCase().includes(lowercasedTerm) ||
-      article.tags?.some(tag => tag.toLowerCase().includes(lowercasedTerm))
+      (article.tags && article.tags.some(tag => tag.toLowerCase().includes(lowercasedTerm)))
     );
   }, [searchTerm, articles]);
 

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
-import { collection, query, where } from "firebase/firestore";
+import { collection, query, where, orderBy } from "firebase/firestore";
 import type { Project } from "@/lib/types";
 import { ProjectCard } from "@/components/project-card";
 import { Input } from "@/components/ui/input";
@@ -16,7 +16,7 @@ export default function Home() {
   const firestore = useFirestore();
 
   const projectsQuery = useMemoFirebase(
-    () => (firestore ? query(collection(firestore, "projects"), where("published", "==", true)) : null),
+    () => (firestore ? query(collection(firestore, "projects"), where("published", "!=", false), orderBy("published", "desc")) : null),
     [firestore]
   );
   const { data: projects, isLoading } = useCollection<Project>(projectsQuery);
@@ -37,7 +37,7 @@ export default function Home() {
       project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       project.excerpt.toLowerCase().includes(searchTerm.toLowerCase()) ||
       project.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      project.software.some(s => s.toLowerCase().includes(searchTerm.toLowerCase()))
+      (project.software && project.software.some(s => s.toLowerCase().includes(searchTerm.toLowerCase())))
     );
   }, [searchTerm, projects]);
 
