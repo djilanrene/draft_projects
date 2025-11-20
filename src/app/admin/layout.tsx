@@ -10,6 +10,7 @@ import {
   PanelLeft,
   Share2,
   User,
+  LogOut,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -116,7 +117,7 @@ function AdminLayout({ children }: { children: React.ReactNode }) {
              <Tooltip delayDuration={0}>
                 <TooltipTrigger asChild>
                     <Button onClick={handleLogout} variant="ghost" className={cn("w-full justify-start gap-3", isCollapsed && "justify-center")}>
-                        <User className="h-5 w-5" />
+                        <LogOut className="h-5 w-5" />
                         {!isCollapsed && <span>Déconnexion</span>}
                     </Button>
                 </TooltipTrigger>
