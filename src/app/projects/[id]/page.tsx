@@ -1,4 +1,7 @@
-import { projects } from "@/app/lib/projects-data";
+"use client";
+
+import { useDoc, useFirestore, useMemoFirebase } from "@/firebase";
+import { doc } from "firebase/firestore";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -6,7 +9,10 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { Github, Globe } from "lucide-react";
+import { Github, Globe, Loader2 } from "lucide-react";
+import type { Project } from "@/lib/types";
+import { Skeleton } from "@/components/ui/skeleton";
+
 
 const resourceIcons = {
   website: Globe,
@@ -14,7 +20,17 @@ const resourceIcons = {
 };
 
 export default function ProjectDetailPage({ params }: { params: { id: string } }) {
-  const project = projects.find((p) => p.id === params.id);
+  const firestore = useFirestore();
+  const projectRef = useMemoFirebase(
+    () => (firestore ? doc(firestore, "projects", params.id) : null),
+    [firestore, params.id]
+  );
+  const { data: project, isLoading } = useDoc<Project>(projectRef);
+
+
+  if (isLoading) {
+    return <ProjectDetailSkeleton />;
+  }
 
   if (!project) {
     notFound();
@@ -102,10 +118,6 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
           <SectionParagraph>
             Justifiez vos choix de conception. Pourquoi cette palette de couleurs, cette typographie, ou cette disposition ? Comment cela répond-il aux besoins de l'utilisateur final ?
           </SectionParagraph>
-          
-          {/* Vous pouvez ajouter des images de vos maquettes ici si vous le souhaitez */}
-          {/* <Image src="/path/to/mockup.jpg" alt="Maquette du projet" width={800} height={600} className="rounded-lg my-6" /> */}
-
         </section>
 
         <section>
@@ -127,6 +139,42 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
             Partagez également ce que vous avez appris au cours de ce projet. Chaque projet est une opportunité d'apprendre, que ce soit une nouvelle compétence technique, une meilleure compréhension d'un secteur d'activité, ou une nouvelle méthode de travail.
           </SectionParagraph>
         </section>
+      </div>
+    </div>
+  );
+}
+
+
+function ProjectDetailSkeleton() {
+  return (
+    <div className="container mx-auto py-12 md:py-24 px-4 md:px-6">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-12">
+        <div className="md:col-span-3 space-y-6">
+          <Skeleton className="h-12 w-3/4" />
+          <div className="flex flex-wrap gap-2">
+            <Skeleton className="h-6 w-24" />
+            <Skeleton className="h-6 w-20" />
+          </div>
+          <Skeleton className="h-5 w-full" />
+          <Skeleton className="h-5 w-5/6" />
+          <div className="flex flex-wrap gap-4 pt-4">
+            <Skeleton className="h-10 w-32" />
+            <Skeleton className="h-10 w-32" />
+          </div>
+        </div>
+        <div className="md:col-span-2">
+          <Skeleton className="aspect-video w-full rounded-xl" />
+        </div>
+      </div>
+      <Separator className="my-12" />
+      <div className="max-w-4xl mx-auto space-y-12">
+        {[...Array(4)].map((_, i) => (
+          <section key={i} className="space-y-4">
+            <Skeleton className="h-9 w-1/2" />
+            <Skeleton className="h-5 w-full" />
+            <Skeleton className="h-5 w-full" />
+          </section>
+        ))}
       </div>
     </div>
   );

@@ -1,15 +1,25 @@
 "use client";
 
 import * as React from "react";
-import { projects } from "@/app/lib/projects-data";
+import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
+import { collection, query, orderBy } from "firebase/firestore";
+import type { Project } from "@/lib/types";
 import { ProjectCard } from "@/components/project-card";
 import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search } from "lucide-react";
 import { TypewriterEffect } from "@/components/typewriter-effect";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Home() {
   const [searchTerm, setSearchTerm] = React.useState("");
+  const firestore = useFirestore();
+
+  const projectsQuery = useMemoFirebase(
+    () => (firestore ? query(collection(firestore, "projects"), orderBy("title")) : null),
+    [firestore]
+  );
+  const { data: projects, isLoading } = useCollection<Project>(projectsQuery);
 
   const staticWords = [{ text: "Apprendre," }, { text: "Standardiser," }];
   const dynamicWords = [
@@ -19,6 +29,7 @@ export default function Home() {
   ];
 
   const filteredProjects = React.useMemo(() => {
+    if (!projects) return [];
     if (!searchTerm) {
       return projects;
     }
@@ -28,7 +39,19 @@ export default function Home() {
       project.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
       project.software.some(s => s.toLowerCase().includes(searchTerm.toLowerCase()))
     );
-  }, [searchTerm]);
+  }, [searchTerm, projects]);
+
+  const ProjectSkeletons = () => (
+    <>
+      {[...Array(3)].map((_, i) => (
+        <div key={i} className="flex flex-col gap-4">
+          <Skeleton className="h-48 w-full" />
+          <Skeleton className="h-6 w-3/4" />
+          <Skeleton className="h-4 w-1/2" />
+        </div>
+      ))}
+    </>
+  );
 
   return (
     <main className="px-4 md:px-6 py-12 md:py-24">
@@ -65,14 +88,18 @@ export default function Home() {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5 }}
           >
-            {filteredProjects.map((project) => (
-              <motion.div layout key={project.id} animate={{ opacity: 1 }} initial={{ opacity: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}>
-                  <ProjectCard project={project} />
-              </motion.div>
-            ))}
+            {isLoading ? (
+              <ProjectSkeletons />
+            ) : (
+              filteredProjects.map((project) => (
+                <motion.div layout key={project.id} animate={{ opacity: 1 }} initial={{ opacity: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}>
+                    <ProjectCard project={project} />
+                </motion.div>
+              ))
+            )}
           </motion.div>
         </AnimatePresence>
-        {filteredProjects.length === 0 && (
+        {!isLoading && filteredProjects.length === 0 && (
             <div className="mt-16 text-center text-muted-foreground">
                 <p>Aucun projet ne correspond à votre recherche.</p>
             </div>

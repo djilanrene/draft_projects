@@ -4,17 +4,25 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { UserCircle, Menu, X } from "lucide-react";
-
 import { cn } from "@/lib/utils";
-import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "./theme-toggle";
+import { useDoc, useFirestore, useMemoFirebase } from "@/firebase";
+import { doc } from "firebase/firestore";
+import type { Profile } from "@/lib/types";
 
 export function SiteHeader() {
   const [isScrolled, setIsScrolled] = React.useState(false);
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const pathname = usePathname();
+
+  const firestore = useFirestore();
+  const profileRef = useMemoFirebase(
+    () => (firestore ? doc(firestore, "profile", "main") : null),
+    [firestore]
+  );
+  const { data: profile } = useDoc<Profile>(profileRef);
 
   React.useEffect(() => {
     const handleScroll = () => {
@@ -24,8 +32,6 @@ export function SiteHeader() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const profileImage = PlaceHolderImages.find((img) => img.id === 'profile');
-  
   const navLinks = [
     { href: "/about", label: "À Propos" },
     { href: "/cv.pdf", label: "Télécharger mon CV", download: true },
@@ -61,7 +67,7 @@ export function SiteHeader() {
                 className="flex items-center space-x-2"
               >
               <Avatar className="h-8 w-8">
-                {profileImage && <AvatarImage src={profileImage.imageUrl} alt="Profile" />}
+                {profile && <AvatarImage src={profile.profileImageUrl} alt="Profile" />}
                 <AvatarFallback>
                   <UserCircle className="h-5 w-5" />
                 </AvatarFallback>
