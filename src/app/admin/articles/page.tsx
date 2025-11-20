@@ -44,7 +44,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import type { Article } from "@/lib/types";
-import { Loader2, PlusCircle, MoreHorizontal } from "lucide-react";
+import { Loader2, PlusCircle, MoreHorizontal, Upload } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -100,6 +100,7 @@ function ArticleForm({
   });
 
   const onSubmit = async (values: ArticleFormValues) => {
+    if (!firestore) return;
     setIsLoading(true);
     try {
       const id = article?.id || doc(collection(firestore, "articles")).id;
@@ -108,7 +109,7 @@ function ArticleForm({
       const dataToSave = {
         ...values,
         id,
-        publishedDate: serverTimestamp(), // Update published date on create/update
+        publishedDate: article?.publishedDate || serverTimestamp(), 
       };
 
       setDocumentNonBlocking(articleRef, dataToSave, { merge: true });
@@ -172,19 +173,16 @@ function ArticleForm({
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="imageUrl"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>URL de l'image</FormLabel>
-              <FormControl>
-                <Input placeholder="https://exemple.com/image.png" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <FormItem>
+          <FormLabel>Image de l'article</FormLabel>
+          <FormControl>
+             <Button variant="outline" className="w-full" onClick={(e) => {e.preventDefault(); alert("Fonctionnalité d'import à venir !")}}>
+                <Upload className="mr-2 h-4 w-4" />
+                Importer une image
+              </Button>
+          </FormControl>
+          <FormMessage />
+        </FormItem>
         <DialogFooter>
           <DialogClose asChild>
             <Button type="button" variant="ghost">Annuler</Button>
@@ -229,6 +227,7 @@ function ArticlesList() {
   const { data: articles, isLoading } = useCollection<Article>(articlesQuery);
   
   const handleDelete = (articleId: string) => {
+    if (!firestore) return;
     const articleRef = doc(firestore, "articles", articleId);
     deleteDocumentNonBlocking(articleRef);
     toast({

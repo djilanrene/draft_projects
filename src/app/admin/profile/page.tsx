@@ -20,7 +20,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import type { Profile } from "@/lib/types";
-import { Loader2 } from "lucide-react";
+import { Loader2, Upload } from "lucide-react";
 import { setDocumentNonBlocking } from "@/firebase/non-blocking-updates";
 import {
   Card,
@@ -73,9 +73,9 @@ function ProfileForm() {
   }, [profile, form]);
 
   const onSubmit = async (values: ProfileFormValues) => {
+    if (!firestore) return;
     setIsSaving(true);
     try {
-      if (!firestore) throw new Error("Firestore is not available");
       const profileDocRef = doc(firestore, "profile", "main");
       
       const dataToSave = {
@@ -120,35 +120,31 @@ function ProfileForm() {
     <CardContent>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          <FormField
-            control={form.control}
-            name="profileImageUrl"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>URL de la photo de profil</FormLabel>
-                <FormControl>
-                  <Input placeholder="https://exemple.com/photo-profil.png" {...field} />
-                </FormControl>
-                <FormDescription>
-                  Cette image apparaît dans la barre de navigation.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="aboutImageUrl"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>URL de l'image de la page "À propos"</FormLabel>
-                <FormControl>
-                  <Input placeholder="https://exemple.com/photo-a-propos.png" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <FormItem>
+            <FormLabel>Photo de profil</FormLabel>
+            <FormControl>
+                <Button variant="outline" className="w-full" onClick={(e) => {e.preventDefault(); alert("Fonctionnalité d'import à venir !")}}>
+                  <Upload className="mr-2 h-4 w-4" />
+                  Importer une image
+                </Button>
+            </FormControl>
+            <FormDescription>
+                Cette image apparaît dans la barre de navigation.
+            </FormDescription>
+            <FormMessage />
+          </FormItem>
+          
+          <FormItem>
+            <FormLabel>Image de la page "À propos"</FormLabel>
+            <FormControl>
+               <Button variant="outline" className="w-full" onClick={(e) => {e.preventDefault(); alert("Fonctionnalité d'import à venir !")}}>
+                  <Upload className="mr-2 h-4 w-4" />
+                  Importer une image
+                </Button>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+
           <FormField
             control={form.control}
             name="aboutText1"

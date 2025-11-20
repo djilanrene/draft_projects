@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
+  FileText,
   FolderKanban,
   Home,
   Newspaper,
@@ -57,6 +58,7 @@ function AdminLayout({ children }: { children: React.ReactNode }) {
   }
 
   const handleLogout = async () => {
+    if (!auth) return;
     await signOut(auth);
     router.push("/admin/login");
   };
@@ -67,6 +69,7 @@ function AdminLayout({ children }: { children: React.ReactNode }) {
     { href: "/admin/articles", icon: Newspaper, label: "Articles" },
     { href: "/admin/profile", icon: User, label: "Profil" },
     { href: "/admin/social-links", icon: Share2, label: "Réseaux Sociaux" },
+    { href: "/admin/cv", icon: FileText, label: "CV" },
   ];
 
   return (

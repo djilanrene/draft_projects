@@ -41,7 +41,7 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import type { Project } from "@/lib/types";
-import { Loader2, PlusCircle, MoreHorizontal, Trash2, Github, Globe } from "lucide-react";
+import { Loader2, PlusCircle, MoreHorizontal, Trash2, Github, Globe, Upload } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -114,6 +114,7 @@ function ProjectForm({
   });
 
   const onSubmit = async (values: ProjectFormValues) => {
+    if (!firestore) return;
     setIsLoading(true);
     try {
       const id = project?.id || doc(collection(firestore, "projects")).id;
@@ -198,19 +199,16 @@ function ProjectForm({
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="imageUrl"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>URL de l'image</FormLabel>
-              <FormControl>
-                <Input placeholder="https://exemple.com/image.png" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <FormItem>
+          <FormLabel>Image du projet</FormLabel>
+          <FormControl>
+            <Button variant="outline" className="w-full" onClick={(e) => {e.preventDefault(); alert("Fonctionnalité d'import à venir !")}}>
+              <Upload className="mr-2 h-4 w-4" />
+              Importer une image
+            </Button>
+          </FormControl>
+          <FormMessage />
+        </FormItem>
         <FormField
           control={form.control}
           name="software"
@@ -329,6 +327,7 @@ function ProjectsList() {
   const { data: projects, isLoading } = useCollection<Project>(projectsQuery);
   
   const handleDelete = (projectId: string) => {
+    if (!firestore) return;
     const projectRef = doc(firestore, "projects", projectId);
     deleteDocumentNonBlocking(projectRef);
     toast({
