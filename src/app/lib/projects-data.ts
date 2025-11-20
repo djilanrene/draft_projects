@@ -1,4 +1,4 @@
-import { PlaceHolderImages } from './placeholder-images';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 export type Project = {
   id: string;
