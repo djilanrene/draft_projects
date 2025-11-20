@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Card,
   CardContent,
@@ -5,8 +7,45 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
+import { collection } from "firebase/firestore";
+import type { Project, Article } from "@/lib/types";
+import { Skeleton } from "@/components/ui/skeleton";
+
+function StatCard({ title, description, count, isLoading }: { title: string, description: string, count: number, isLoading: boolean }) {
+    return (
+        <Card>
+            <CardHeader className="pb-2">
+                <CardTitle>{title}</CardTitle>
+                <CardDescription>{description}</CardDescription>
+            </CardHeader>
+            <CardContent>
+                {isLoading ? (
+                    <Skeleton className="h-8 w-16" />
+                ) : (
+                    <div className="text-4xl font-bold">{count}</div>
+                )}
+            </CardContent>
+        </Card>
+    );
+}
+
 
 export default function AdminDashboard() {
+  const firestore = useFirestore();
+
+  const projectsQuery = useMemoFirebase(
+    () => (firestore ? collection(firestore, "projects") : null),
+    [firestore]
+  );
+  const { data: projects, isLoading: isLoadingProjects } = useCollection<Project>(projectsQuery);
+
+  const articlesQuery = useMemoFirebase(
+    () => (firestore ? collection(firestore, "articles") : null),
+    [firestore]
+  );
+  const { data: articles, isLoading: isLoadingArticles } = useCollection<Article>(articlesQuery);
+
   return (
     <div className="space-y-8">
       <div className="space-y-2">
@@ -16,24 +55,18 @@ export default function AdminDashboard() {
         </p>
       </div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Projets</CardTitle>
-            <CardDescription>Gérez les projets de votre portfolio.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p>Créez, modifiez ou supprimez des projets.</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Articles</CardTitle>
-            <CardDescription>Gérez les articles de votre blog.</CardDescription>
-          </CardHeader>
-          <CardContent>
-             <p>Rédigez et publiez de nouveaux articles.</p>
-          </CardContent>
-        </Card>
+        <StatCard 
+            title="Projets"
+            description="Nombre total de projets"
+            count={projects?.length || 0}
+            isLoading={isLoadingProjects}
+        />
+         <StatCard 
+            title="Articles"
+            description="Nombre total d'articles"
+            count={articles?.length || 0}
+            isLoading={isLoadingArticles}
+        />
         <Card>
           <CardHeader>
             <CardTitle>Profil</CardTitle>
@@ -56,17 +89,18 @@ export default function AdminDashboard() {
        <div className="pt-8">
         <Card>
             <CardHeader>
-                <CardTitle>Prochaines étapes</CardTitle>
-                <CardDescription>Comment utiliser votre nouveau backoffice.</CardDescription>
+                <CardTitle>Bienvenue !</CardTitle>
+                <CardDescription>Comment utiliser votre backoffice.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-                <p>Ce tableau de bord est la première étape. Voici ce que nous allons construire ensuite :</p>
+                <p>Ce tableau de bord vous donne un contrôle total sur le contenu de votre portfolio. Utilisez le menu latéral pour :</p>
                 <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
-                    <li>Une section pour <span className="font-semibold text-foreground">lister, créer, modifier et supprimer</span> vos projets.</li>
-                    <li>La même chose pour les <span className="font-semibold text-foreground">articles de blog</span>.</li>
-                    <li>Un formulaire pour mettre à jour facilement les <span className="font-semibold text-foreground">informations de votre profil</span> et vos <span className="font-semibold text-foreground">liens de réseaux sociaux</span>.</li>
+                    <li>Gérer vos <span className="font-semibold text-foreground">Projets</span> : ajoutez, modifiez et supprimez les réalisations que vous souhaitez présenter.</li>
+                    <li>Rédiger des <span className="font-semibold text-foreground">Articles</span> : partagez vos connaissances et vos expériences.</li>
+                    <li>Mettre à jour votre <span className="font-semibold text-foreground">Profil</span> : changez votre biographie et vos photos à tout moment.</li>
+                     <li>Administrer vos <span className="font-semibold text-foreground">Réseaux Sociaux</span> : gardez vos liens de contact à jour.</li>
                 </ul>
-                <p>Chaque section aura sa propre page dédiée accessible via le menu latéral.</p>
+                <p>Toutes les modifications sont sauvegardées en temps réel et visibles instantanément sur votre site public.</p>
             </CardContent>
         </Card>
       </div>
