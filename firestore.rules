@@ -3,44 +3,56 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     // Helper function to check for admin role.
-    // Replace 'YOUR_ADMIN_UID_HERE' with your actual Firebase Admin UID
-    // after you set up authentication for the backoffice.
     function isAdmin() {
-      // For now, we will allow writes to bootstrap data,
-      // but this should be locked down.
-      // return request.auth.uid == 'YOUR_ADMIN_UID_HERE';
-      return true; // DANGEROUS: Temporarily open for bootstrapping
+      // Temporarily open for bootstrapping, but should be locked down.
+      // In a real app, you'd check a custom claim:
+      // return request.auth.token.admin == true;
+      return request.auth != null; 
     }
 
-    // Projects are public to read, but only admin can write.
+    // Projects collection: public read, admin write.
     match /projects/{projectId} {
-      allow get, list: if true;
+      allow get: if true;
       allow write: if isAdmin();
     }
+    match /projects {
+      allow list: if true;
+    }
 
-    // Profile is public to read, but only admin can write.
-    // It's intended to be a single document collection.
+    // Profile collection: public read, admin write.
     match /profile/{profileId} {
-      allow get, list: if true;
+      allow get: if true;
       allow write: if isAdmin();
     }
+    match /profile {
+      allow list: if true;
+    }
 
-    // Social links are public to read, but only admin can write.
+    // Social links collection: public read, admin write.
     match /social_links/{socialLinkId} {
-      allow get, list: if true;
+      allow get: if true;
       allow write: if isAdmin();
+    }
+    match /social_links {
+      allow list: if true;
     }
     
-    // Articles are public to read, but only admin can write.
+    // Articles collection: public read, admin write.
     match /articles/{articleId} {
-      allow get, list: if true;
+      allow get: if true;
       allow write: if isAdmin();
     }
+    match /articles {
+      allow list: if true;
+    }
 
-    // CV document is public to read, but only admin can write.
+    // CV collection: public read, admin write.
     match /cv/{cvId} {
-      allow get, list: if true;
+      allow get: if true;
       allow write: if isAdmin();
+    }
+     match /cv {
+      allow list: if true;
     }
   }
 }
