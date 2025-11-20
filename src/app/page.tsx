@@ -11,7 +11,7 @@ import { TypewriterEffect } from "@/components/typewriter-effect";
 export default function Home() {
   const [searchTerm, setSearchTerm] = React.useState("");
 
-  const staticWords = [{ text: "Apprendre," }, { text: "Créer," }];
+  const staticWords = [{ text: "Apprendre," }, { text: "Standardiser," }];
   const dynamicWords = [
     { text: "Coder", className: "text-primary" },
     { text: "Automatiser", className: "text-primary" },
