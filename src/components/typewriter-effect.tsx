@@ -51,6 +51,9 @@ export const TypewriterEffect = ({
       while (true) {
         const currentWordSelector = `.dynamic-word-${dynamicWordIndex} .dynamic-char`;
         
+        // Ensure all dynamic words are hidden before typing the new one
+        await animate(".dynamic-char", { opacity: 0, display: "none" }, { duration: 0 });
+        
         // Writing animation for the current dynamic word
         await animate(
           currentWordSelector,
@@ -68,7 +71,7 @@ export const TypewriterEffect = ({
           { duration: 0.05, delay: stagger(0.03, { from: "last" }), ease: "easeInOut" }
         );
 
-        // Hide spans after erasing
+        // Explicitly hide spans after erasing to prevent them from taking up space
         await animate(currentWordSelector, { display: "none" }, { duration: 0 });
 
         // Move to the next word
