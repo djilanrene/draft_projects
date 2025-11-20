@@ -34,6 +34,11 @@
           "type": "string",
           "description": "The category of the project."
         },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp of when the project was created."
+        },
         "software": {
           "type": "array",
           "description": "Software used in the project.",
@@ -69,7 +74,8 @@
         "content",
         "imageUrl",
         "category",
-        "software"
+        "software",
+        "createdAt"
       ]
     },
     "Profile": {
@@ -175,6 +181,13 @@
           "type": "string",
           "format": "date-time",
           "description": "The date the article was published."
+        },
+        "tags": {
+          "type": "array",
+          "description": "Tags for the article.",
+          "items": {
+            "type": "string"
+          }
         }
       },
       "required": ["id", "title", "excerpt", "content", "publishedDate", "imageUrl"]

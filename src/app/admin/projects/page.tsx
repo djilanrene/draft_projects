@@ -5,6 +5,9 @@ import {
   collection,
   doc,
   setDoc,
+  serverTimestamp,
+  query,
+  orderBy
 } from "firebase/firestore";
 import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
 import { Button } from "@/components/ui/button";
@@ -42,7 +45,7 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import type { Project } from "@/lib/types";
-import { Loader2, PlusCircle, MoreHorizontal, Trash2, Github, Globe, Eye } from "lucide-react";
+import { Loader2, PlusCircle, MoreHorizontal, Trash2, Github, Globe, Eye, Search } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -64,6 +67,8 @@ import { deleteDocumentNonBlocking } from "@/firebase/non-blocking-updates";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Link from "next/link";
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
 
 const resourceSchema = z.object({
   label: z.string().min(1, "Le label est requis."),
@@ -124,6 +129,7 @@ function ProjectForm({
       const dataToSave = {
         ...values,
         id: formProjectId,
+        createdAt: project?.createdAt || serverTimestamp(),
       };
 
       await setDoc(projectRef, dataToSave, { merge: true });
@@ -339,11 +345,22 @@ function ProjectDialog({ project, children }: { project?: Project, children: Rea
 function ProjectsList() {
   const firestore = useFirestore();
   const { toast } = useToast();
+  const [searchTerm, setSearchTerm] = React.useState("");
+
   const projectsQuery = useMemoFirebase(
-    () => (firestore ? collection(firestore, "projects") : null),
+    () => (firestore ? query(collection(firestore, "projects"), orderBy("createdAt", "desc")) : null),
     [firestore]
   );
   const { data: projects, isLoading } = useCollection<Project>(projectsQuery);
+  
+  const filteredProjects = React.useMemo(() => {
+    if (!projects) return [];
+    if (!searchTerm) return projects;
+    return projects.filter(project => 
+      project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      project.category.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [projects, searchTerm]);
   
   const handleDelete = (projectId: string) => {
     if (!firestore) return;
@@ -357,9 +374,21 @@ function ProjectsList() {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Vos Projets</CardTitle>
-        <CardDescription>La liste de tous les projets de votre portfolio.</CardDescription>
+      <CardHeader className="md:flex-row md:items-center md:justify-between">
+        <div>
+          <CardTitle>Vos Projets</CardTitle>
+          <CardDescription>La liste de tous les projets de votre portfolio.</CardDescription>
+        </div>
+        <div className="relative mt-4 md:mt-0 w-full max-w-md">
+          <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            type="search"
+            placeholder="Rechercher par titre ou catégorie..."
+            className="w-full bg-background pl-10 pr-4 py-2 text-base"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
       </CardHeader>
       <CardContent>
         <Table>
@@ -367,28 +396,34 @@ function ProjectsList() {
             <TableRow>
               <TableHead>Titre</TableHead>
               <TableHead>Catégorie</TableHead>
+              <TableHead>Date d'ajout</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading && (
               <TableRow>
-                <TableCell colSpan={3} className="text-center">
+                <TableCell colSpan={4} className="text-center">
                   <Loader2 className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
                 </TableCell>
               </TableRow>
             )}
-            {!isLoading && projects?.length === 0 && (
+            {!isLoading && filteredProjects?.length === 0 && (
               <TableRow>
-                <TableCell colSpan={3} className="text-center text-muted-foreground">
-                  Aucun projet trouvé.
+                <TableCell colSpan={4} className="text-center text-muted-foreground">
+                  {searchTerm ? "Aucun projet ne correspond à votre recherche." : "Aucun projet trouvé."}
                 </TableCell>
               </TableRow>
             )}
-            {projects?.map((project) => (
+            {filteredProjects?.map((project) => (
               <TableRow key={project.id}>
                 <TableCell className="font-medium">{project.title}</TableCell>
                 <TableCell>{project.category}</TableCell>
+                <TableCell>
+                  {project.createdAt 
+                    ? format(project.createdAt.toDate(), "d MMMM yyyy", { locale: fr })
+                    : "Date non disponible"}
+                </TableCell>
                 <TableCell className="text-right">
                   <AlertDialog>
                     <DropdownMenu>

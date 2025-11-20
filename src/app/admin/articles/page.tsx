@@ -46,7 +46,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import type { Article } from "@/lib/types";
-import { Loader2, PlusCircle, MoreHorizontal, Eye } from "lucide-react";
+import { Loader2, PlusCircle, MoreHorizontal, Eye, Search } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -69,6 +69,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
 
 const articleSchema = z.object({
   title: z.string().min(1, "Le titre est requis"),
@@ -76,6 +77,7 @@ const articleSchema = z.object({
   content: z.string().min(1, "Le contenu est requis"),
   imageUrl: z.string().url("L'URL de l'image est invalide").optional().or(z.literal('')),
   imageHint: z.string().optional(),
+  tags: z.string().transform(val => val ? val.split(',').map(s => s.trim()) : []),
 });
 
 type ArticleFormValues = z.infer<typeof articleSchema>;
@@ -100,6 +102,7 @@ function ArticleForm({
       content: article?.content || "",
       imageUrl: article?.imageUrl || "",
       imageHint: article?.imageHint || "",
+      tags: article?.tags?.join(", ") || "",
     },
   });
 
@@ -192,6 +195,22 @@ function ArticleForm({
             </FormItem>
           )}
         />
+         <FormField
+          control={form.control}
+          name="tags"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Tags</FormLabel>
+              <FormControl>
+                <Input placeholder="Design, Code, Next.js" {...field} />
+              </FormControl>
+               <FormDescription>
+                Séparez les tags par des virgules.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <DialogFooter className="justify-between sm:justify-between">
            <div>
             {article && (
@@ -241,12 +260,23 @@ function ArticleDialog({ article, children }: { article?: Article, children: Rea
 function ArticlesList() {
   const firestore = useFirestore();
   const { toast } = useToast();
+  const [searchTerm, setSearchTerm] = React.useState("");
+
   const articlesQuery = useMemoFirebase(
     () => (firestore ? query(collection(firestore, "articles"), orderBy("publishedDate", "desc")) : null),
     [firestore]
   );
   const { data: articles, isLoading } = useCollection<Article>(articlesQuery);
   
+  const filteredArticles = React.useMemo(() => {
+    if (!articles) return [];
+    if (!searchTerm) return articles;
+    return articles.filter(article => 
+      article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      article.tags?.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
+  }, [articles, searchTerm]);
+
   const handleDelete = (articleId: string) => {
     if (!firestore) return;
     const articleRef = doc(firestore, "articles", articleId);
@@ -259,15 +289,28 @@ function ArticlesList() {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Vos Articles</CardTitle>
-        <CardDescription>La liste de tous les articles de votre blog.</CardDescription>
+      <CardHeader className="md:flex-row md:items-center md:justify-between">
+        <div>
+          <CardTitle>Vos Articles</CardTitle>
+          <CardDescription>La liste de tous les articles de votre blog.</CardDescription>
+        </div>
+        <div className="relative mt-4 md:mt-0 w-full max-w-md">
+          <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            type="search"
+            placeholder="Rechercher par titre ou tag..."
+            className="w-full bg-background pl-10 pr-4 py-2 text-base"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
       </CardHeader>
       <CardContent>
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Titre</TableHead>
+              <TableHead>Tags</TableHead>
               <TableHead>Date de publication</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
@@ -275,24 +318,29 @@ function ArticlesList() {
           <TableBody>
             {isLoading && (
               <TableRow>
-                <TableCell colSpan={3} className="text-center">
+                <TableCell colSpan={4} className="text-center">
                   <Loader2 className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
                 </TableCell>
               </TableRow>
             )}
-            {!isLoading && articles?.length === 0 && (
+            {!isLoading && filteredArticles?.length === 0 && (
               <TableRow>
-                <TableCell colSpan={3} className="text-center text-muted-foreground">
-                  Aucun article trouvé.
+                <TableCell colSpan={4} className="text-center text-muted-foreground">
+                  {searchTerm ? "Aucun article ne correspond à votre recherche." : "Aucun article trouvé."}
                 </TableCell>
               </TableRow>
             )}
-            {articles?.map((article) => (
+            {filteredArticles?.map((article) => (
               <TableRow key={article.id}>
                 <TableCell className="font-medium">{article.title}</TableCell>
                 <TableCell>
+                  <div className="flex flex-wrap gap-1">
+                    {article.tags?.map(tag => <Badge key={tag} variant="secondary">{tag}</Badge>)}
+                  </div>
+                </TableCell>
+                <TableCell>
                   {article.publishedDate 
-                    ? format(article.publishedDate.toDate(), "d MMMM yyyy", { locale: fr })
+                    ? format(article.publishedDate.toDate(), "d MMMM yyyy 'à' HH:mm", { locale: fr })
                     : "Date non disponible"}
                 </TableCell>
                 <TableCell className="text-right">

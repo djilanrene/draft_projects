@@ -9,6 +9,7 @@ export type Project = {
   software: string[];
   imageUrl: string;
   imageHint: string;
+  createdAt?: Timestamp;
   resources?: {
     label: string;
     url: string;
@@ -38,6 +39,7 @@ export type Article = {
   title: string;
   excerpt: string;
   content: string;
+  tags?: string[];
   imageUrl?: string;
   imageHint?: string;
   publishedDate: Timestamp;
