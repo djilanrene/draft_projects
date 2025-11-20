@@ -39,6 +39,10 @@
           "format": "date-time",
           "description": "The timestamp of when the project was created."
         },
+        "published": {
+          "type": "boolean",
+          "description": "Whether the project is visible to the public."
+        },
         "software": {
           "type": "array",
           "description": "Software used in the project.",
@@ -75,7 +79,8 @@
         "imageUrl",
         "category",
         "software",
-        "createdAt"
+        "createdAt",
+        "published"
       ]
     },
     "Profile": {
@@ -182,6 +187,10 @@
           "format": "date-time",
           "description": "The date the article was published."
         },
+        "published": {
+            "type": "boolean",
+            "description": "Whether the article is visible to the public."
+        },
         "tags": {
           "type": "array",
           "description": "Tags for the article.",
@@ -190,7 +199,7 @@
           }
         }
       },
-      "required": ["id", "title", "excerpt", "content", "publishedDate", "imageUrl"]
+      "required": ["id", "title", "excerpt", "content", "publishedDate", "imageUrl", "published"]
     }
   },
   "auth": {

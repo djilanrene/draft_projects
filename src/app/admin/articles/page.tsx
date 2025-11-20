@@ -70,6 +70,7 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 
 const articleSchema = z.object({
   title: z.string().min(1, "Le titre est requis"),
@@ -78,6 +79,7 @@ const articleSchema = z.object({
   imageUrl: z.string().url("L'URL de l'image est invalide").optional().or(z.literal('')),
   imageHint: z.string().optional(),
   tags: z.string().transform(val => val ? val.split(',').map(s => s.trim()) : []),
+  published: z.boolean().default(false),
 });
 
 type ArticleFormValues = z.infer<typeof articleSchema>;
@@ -103,6 +105,7 @@ function ArticleForm({
       imageUrl: article?.imageUrl || "",
       imageHint: article?.imageHint || "",
       tags: article?.tags?.join(", ") || "",
+      published: article?.published || false,
     },
   });
 
@@ -140,6 +143,26 @@ function ArticleForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <FormField
+          control={form.control}
+          name="published"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+              <div className="space-y-0.5">
+                <FormLabel className="text-base">Publier</FormLabel>
+                <FormDescription>
+                  Rendre cet article visible au public sur la page du blog.
+                </FormDescription>
+              </div>
+              <FormControl>
+                <Switch
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
         <FormField
           control={form.control}
           name="title"
@@ -310,6 +333,7 @@ function ArticlesList() {
           <TableHeader>
             <TableRow>
               <TableHead>Titre</TableHead>
+              <TableHead>Statut</TableHead>
               <TableHead>Tags</TableHead>
               <TableHead>Date de publication</TableHead>
               <TableHead className="text-right">Actions</TableHead>
@@ -318,14 +342,14 @@ function ArticlesList() {
           <TableBody>
             {isLoading && (
               <TableRow>
-                <TableCell colSpan={4} className="text-center">
+                <TableCell colSpan={5} className="text-center">
                   <Loader2 className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
                 </TableCell>
               </TableRow>
             )}
             {!isLoading && filteredArticles?.length === 0 && (
               <TableRow>
-                <TableCell colSpan={4} className="text-center text-muted-foreground">
+                <TableCell colSpan={5} className="text-center text-muted-foreground">
                   {searchTerm ? "Aucun article ne correspond à votre recherche." : "Aucun article trouvé."}
                 </TableCell>
               </TableRow>
@@ -333,6 +357,11 @@ function ArticlesList() {
             {filteredArticles?.map((article) => (
               <TableRow key={article.id}>
                 <TableCell className="font-medium">{article.title}</TableCell>
+                <TableCell>
+                  <Badge variant={article.published ? "default" : "secondary"}>
+                    {article.published ? "Publié" : "Brouillon"}
+                  </Badge>
+                </TableCell>
                 <TableCell>
                   <div className="flex flex-wrap gap-1">
                     {article.tags?.map(tag => <Badge key={tag} variant="secondary">{tag}</Badge>)}

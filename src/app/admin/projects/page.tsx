@@ -69,6 +69,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import Link from "next/link";
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
 
 const resourceSchema = z.object({
   label: z.string().min(1, "Le label est requis."),
@@ -85,6 +87,7 @@ const projectSchema = z.object({
   imageHint: z.string().optional(),
   software: z.string().transform(val => val ? val.split(',').map(s => s.trim()) : []),
   resources: z.array(resourceSchema).optional(),
+  published: z.boolean().default(false),
 });
 
 type ProjectFormValues = z.infer<typeof projectSchema>;
@@ -112,6 +115,7 @@ function ProjectForm({
       imageHint: project?.imageHint || "",
       software: project?.software?.join(", ") || "",
       resources: project?.resources || [],
+      published: project?.published || false,
     },
   });
   
@@ -154,6 +158,26 @@ function ProjectForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <FormField
+          control={form.control}
+          name="published"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+              <div className="space-y-0.5">
+                <FormLabel className="text-base">Publier</FormLabel>
+                <FormDescription>
+                  Rendre ce projet visible au public sur la page d'accueil.
+                </FormDescription>
+              </div>
+              <FormControl>
+                <Switch
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
         <FormField
           control={form.control}
           name="title"
@@ -348,7 +372,7 @@ function ProjectsList() {
   const [searchTerm, setSearchTerm] = React.useState("");
 
   const projectsQuery = useMemoFirebase(
-    () => (firestore ? query(collection(firestore, "projects")) : null),
+    () => (firestore ? query(collection(firestore, "projects"), orderBy("createdAt", "desc")) : null),
     [firestore]
   );
   const { data: projects, isLoading } = useCollection<Project>(projectsQuery);
@@ -395,6 +419,7 @@ function ProjectsList() {
           <TableHeader>
             <TableRow>
               <TableHead>Titre</TableHead>
+              <TableHead>Statut</TableHead>
               <TableHead>Catégorie</TableHead>
               <TableHead>Date d'ajout</TableHead>
               <TableHead className="text-right">Actions</TableHead>
@@ -403,14 +428,14 @@ function ProjectsList() {
           <TableBody>
             {isLoading && (
               <TableRow>
-                <TableCell colSpan={4} className="text-center">
+                <TableCell colSpan={5} className="text-center">
                   <Loader2 className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
                 </TableCell>
               </TableRow>
             )}
             {!isLoading && filteredProjects?.length === 0 && (
               <TableRow>
-                <TableCell colSpan={4} className="text-center text-muted-foreground">
+                <TableCell colSpan={5} className="text-center text-muted-foreground">
                   {searchTerm ? "Aucun projet ne correspond à votre recherche." : "Aucun projet trouvé."}
                 </TableCell>
               </TableRow>
@@ -418,6 +443,11 @@ function ProjectsList() {
             {filteredProjects?.map((project) => (
               <TableRow key={project.id}>
                 <TableCell className="font-medium">{project.title}</TableCell>
+                <TableCell>
+                  <Badge variant={project.published ? "default" : "secondary"}>
+                    {project.published ? "Publié" : "Brouillon"}
+                  </Badge>
+                </TableCell>
                 <TableCell>{project.category}</TableCell>
                 <TableCell>
                   {project.createdAt 

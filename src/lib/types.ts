@@ -10,6 +10,7 @@ export type Project = {
   imageUrl: string;
   imageHint: string;
   createdAt?: Timestamp;
+  published: boolean;
   resources?: {
     label: string;
     url: string;
@@ -43,4 +44,5 @@ export type Article = {
   imageUrl?: string;
   imageHint?: string;
   publishedDate: Timestamp;
+  published: boolean;
 };

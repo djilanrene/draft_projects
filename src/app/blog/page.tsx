@@ -4,7 +4,7 @@ import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
-import { collection, query, orderBy } from "firebase/firestore";
+import { collection, query, orderBy, where } from "firebase/firestore";
 import type { Article } from "@/lib/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -51,7 +51,7 @@ export default function BlogPage() {
   const firestore = useFirestore();
 
   const articlesQuery = useMemoFirebase(
-    () => (firestore ? query(collection(firestore, "articles"), orderBy("publishedDate", "desc")) : null),
+    () => (firestore ? query(collection(firestore, "articles"), where("published", "==", true), orderBy("publishedDate", "desc")) : null),
     [firestore]
   );
   const { data: articles, isLoading } = useCollection<Article>(articlesQuery);
