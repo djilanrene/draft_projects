@@ -36,9 +36,11 @@ export const TypewriterEffect = ({
   useEffect(() => {
     const animateWords = async () => {
       // Hide all dynamic words initially
+      if (!scope.current) return;
       await animate(".dynamic-char", { opacity: 0, display: "none" }, { duration: 0 });
       
       // Write static words once
+      if (!scope.current) return;
       await animate(
         ".static-char",
         { display: "inline-block", opacity: 1 },
@@ -49,12 +51,14 @@ export const TypewriterEffect = ({
 
       let dynamicWordIndex = 0;
       while (true) {
+        if (!scope.current) return;
         const currentWordSelector = `.dynamic-word-${dynamicWordIndex} .dynamic-char`;
         
         // Ensure all dynamic words are hidden before typing the new one
         await animate(".dynamic-char", { opacity: 0, display: "none" }, { duration: 0 });
         
         // Writing animation for the current dynamic word
+        if (!scope.current) return;
         await animate(
           currentWordSelector,
           { display: "inline-block", opacity: 1 },
@@ -65,6 +69,7 @@ export const TypewriterEffect = ({
         await new Promise((resolve) => setTimeout(resolve, 2000));
 
         // Erasing animation for the current dynamic word
+        if (!scope.current) return;
         await animate(
           currentWordSelector,
           { opacity: 0 },
@@ -72,6 +77,7 @@ export const TypewriterEffect = ({
         );
 
         // Explicitly hide spans after erasing to prevent them from taking up space
+        if (!scope.current) return;
         await animate(currentWordSelector, { display: "none" }, { duration: 0 });
 
         // Move to the next word
@@ -85,7 +91,7 @@ export const TypewriterEffect = ({
     if (isInView) {
       animateWords();
     }
-  }, [isInView, animate, dynamicWordsArray.length]);
+  }, [isInView, animate, dynamicWordsArray.length, scope]);
 
   return (
     <div
