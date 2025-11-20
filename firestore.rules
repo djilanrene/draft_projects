@@ -4,7 +4,6 @@ service cloud.firestore {
 
     // Helper function to check for admin role.
     function isAdmin() {
-      // Temporarily open for bootstrapping, but should be locked down.
       // In a real app, you'd check a custom claim:
       // return request.auth.token.admin == true;
       return request.auth != null; 
@@ -12,47 +11,32 @@ service cloud.firestore {
 
     // Projects collection: public read, admin write.
     match /projects/{projectId} {
-      allow get: if true;
+      allow read: if true;
       allow write: if isAdmin();
-    }
-    match /projects {
-      allow list: if true;
     }
 
     // Profile collection: public read, admin write.
     match /profile/{profileId} {
-      allow get: if true;
+      allow read: if true;
       allow write: if isAdmin();
-    }
-    match /profile {
-      allow list: if true;
     }
 
     // Social links collection: public read, admin write.
     match /social_links/{socialLinkId} {
-      allow get: if true;
+      allow read: if true;
       allow write: if isAdmin();
-    }
-    match /social_links {
-      allow list: if true;
     }
     
     // Articles collection: public read, admin write.
     match /articles/{articleId} {
-      allow get: if true;
+      allow read: if true;
       allow write: if isAdmin();
-    }
-    match /articles {
-      allow list: if true;
     }
 
     // CV collection: public read, admin write.
     match /cv/{cvId} {
-      allow get: if true;
+      allow read: if true;
       allow write: if isAdmin();
-    }
-     match /cv {
-      allow list: if true;
     }
   }
 }
