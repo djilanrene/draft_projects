@@ -1,3 +1,46 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "profile",
+      "description": "A portrait of the portfolio owner.",
+      "imageUrl": "https://images.unsplash.com/photo-1641246956643-c8eefb1b7caf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxwb3J0cmFpdCUyMHBlcnNvbnxlbnwwfHx8fDE3NjM1OTk4MzF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "portrait person"
+    },
+    {
+      "id": "project-1",
+      "description": "Abstract design for a web project.",
+      "imageUrl": "https://images.unsplash.com/photo-1676731820551-4b2988ae4e29?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxhYnN0cmFjdCUyMGRlc2lnbnxlbnwwfHx8fDE3NjM1ODQ4ODB8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "abstract design"
+    },
+    {
+      "id": "project-2",
+      "description": "Branding materials on a desk.",
+      "imageUrl": "https://images.unsplash.com/photo-1686551899991-48002618adb4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxicmFuZGluZyUyMGRlc2t8ZW58MHx8fHwxNzYzNjIyNzAwfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "branding desk"
+    },
+    {
+      "id": "project-3",
+      "description": "UI/UX design wireframes.",
+      "imageUrl": "https://images.unsplash.com/photo-1546437593-3d0258c28037?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHx3aXJlZnJhbWUlMjBkZXNpZ258ZW58MHx8fHwxNzYzNTcwNTIwfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "wireframe design"
+    },
+    {
+      "id": "project-4",
+      "description": "Modern website on a laptop.",
+      "imageUrl": "https://images.unsplash.com/photo-1669607960578-f7d7fd363e5e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHx3ZWJzaXRlJTIwbGFwdG9wfGVufDB8fHx8MTc2MzU5MjAzNHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "website laptop"
+    },
+    {
+      "id": "project-5",
+      "description": "Corporate identity mockups.",
+      "imageUrl": "https://images.unsplash.com/photo-1646310997921-9565eff3eac0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxpZGVudGl0eSUyMG1vY2t1cHxlbnwwfHx8fDE3NjM2MjI3MDB8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "identity mockup"
+    },
+    {
+      "id": "project-6",
+      "description": "Mobile app interface design.",
+      "imageUrl": "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxtb2JpbGUlMjBhcHB8ZW58MHx8fHwxNzYzNTc5MTY5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "mobile app"
+    }
+  ]
 }
