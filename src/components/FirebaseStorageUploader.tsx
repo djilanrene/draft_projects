@@ -111,7 +111,7 @@ export function FirebaseStorageUploader({
       </Button>
 
       {uploadProgress !== null && uploadProgress < 100 && (
-        <Progress value={uploadProgress} className="w-full" />
+        <Progress value={uploadProgress} className="w-full h-2" />
       )}
       
       {uploadError && (
