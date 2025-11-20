@@ -27,21 +27,53 @@ export const TypewriterEffect = ({
   const isInView = useInView(scope);
 
   useEffect(() => {
-    if (isInView) {
-      animate(
-        "span",
-        {
-          display: "inline-block",
-          opacity: 1,
-        },
-        {
-          duration: 0.3,
-          delay: stagger(0.1),
-          ease: "easeInOut",
+    const animateWords = async () => {
+        // Initial animation to hide everything
+        await animate("span", { opacity: 0, display: "none" }, { duration: 0 });
+
+        while (true) {
+            // Writing animation
+            await animate(
+                "span",
+                {
+                    display: "inline-block",
+                    opacity: 1,
+                },
+                {
+                    duration: 0.2,
+                    delay: stagger(0.1),
+                    ease: "easeInOut",
+                }
+            );
+
+            // Pause after writing
+            await new Promise((resolve) => setTimeout(resolve, 2000));
+
+            // Erasing animation
+            await animate(
+                "span",
+                {
+                    opacity: 0,
+                },
+                {
+                    duration: 0.1,
+                    delay: stagger(0.05, { from: "last" }),
+                    ease: "easeInOut",
+                }
+            );
+            
+            // Hide spans after erasing
+            await animate("span", { display: "none" }, { duration: 0 });
+
+            // Pause after erasing
+            await new Promise((resolve) => setTimeout(resolve, 1000));
         }
-      );
+    };
+
+    if (isInView) {
+        animateWords();
     }
-  }, [isInView]);
+  }, [isInView, animate]);
 
   const renderWords = () => {
     return (
@@ -51,10 +83,10 @@ export const TypewriterEffect = ({
             <div key={`word-${idx}`} className="inline-block">
               {word.text.map((char, index) => (
                 <motion.span
-                  initial={{}}
+                  initial={{ opacity: 0, display: "none" }}
                   key={`char-${index}`}
                   className={cn(
-                    `dark:text-white text-black opacity-0 hidden`,
+                    `dark:text-white text-black`,
                     word.className
                   )}
                 >
@@ -90,7 +122,7 @@ export const TypewriterEffect = ({
           repeatType: "reverse",
         }}
         className={cn(
-          "inline-block rounded-sm w-[4px] h-4 md:h-6 lg:h-10 bg-blue-500",
+          "inline-block rounded-sm w-[4px] h-6 sm:h-8 md:h-10 lg:h-12 bg-primary align-bottom",
           cursorClassName
         )}
       ></motion.span>
