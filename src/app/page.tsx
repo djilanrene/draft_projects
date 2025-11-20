@@ -13,9 +13,9 @@ export default function Home() {
 
   const staticWords = [{ text: "Apprendre," }, { text: "Créer," }];
   const dynamicWords = [
-    { text: "Coder" },
+    { text: "Coder", className: "text-primary" },
     { text: "Automatiser", className: "text-primary" },
-    { text: "Publier" },
+    { text: "Publier", className: "text-primary" },
   ];
 
   const filteredProjects = React.useMemo(() => {
