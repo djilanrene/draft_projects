@@ -28,6 +28,7 @@ export function SiteHeader() {
   const navLinks = [
     { href: "/", label: "Accueil" },
     { href: "/about", label: "À Propos" },
+    { href: "/cv.pdf", label: "Télécharger mon CV", download: true },
   ];
 
   return (
@@ -39,7 +40,7 @@ export function SiteHeader() {
           : "bg-transparent"
       )}
     >
-      <div className="px-4 md:px-6 flex h-16 items-center">
+      <div className="px-4 sm:px-6 flex h-16 items-center">
         <div className="flex w-full items-center justify-between">
           <div className="flex items-center gap-6 md:hidden">
             <Button variant="ghost" size="icon" onClick={() => setIsMenuOpen(!isMenuOpen)}>
@@ -70,6 +71,8 @@ export function SiteHeader() {
               <Link
                 key={link.href}
                 href={link.href}
+                target={link.download ? "_blank" : undefined}
+                rel={link.download ? "noopener noreferrer" : undefined}
                 className={cn(
                   "transition-colors hover:text-primary",
                   pathname === link.href ? "text-primary font-semibold" : "text-foreground/60"
@@ -93,6 +96,8 @@ export function SiteHeader() {
                       key={link.href}
                       href={link.href}
                       onClick={() => setIsMenuOpen(false)}
+                      target={link.download ? "_blank" : undefined}
+                      rel={link.download ? "noopener noreferrer" : undefined}
                       className={cn(
                         "text-lg transition-colors hover:text-primary",
                         pathname === link.href ? "text-primary font-semibold" : "text-foreground/80"
