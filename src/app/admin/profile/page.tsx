@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { doc, serverTimestamp } from "firebase/firestore";
+import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 import { useDoc, useFirestore, useMemoFirebase } from "@/firebase";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,7 +13,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
@@ -21,7 +20,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import type { Profile } from "@/lib/types";
 import { Loader2 } from "lucide-react";
-import { setDocumentNonBlocking } from "@/firebase/non-blocking-updates";
 import {
   Card,
   CardContent,
@@ -47,6 +45,7 @@ function ProfileForm() {
   const firestore = useFirestore();
   const { toast } = useToast();
   const [isSaving, setIsSaving] = React.useState(false);
+  const [isUploading, setIsUploading] = React.useState(false);
 
   const profileRef = useMemoFirebase(
     () => (firestore ? doc(firestore, "profile", "main") : null),
@@ -84,7 +83,7 @@ function ProfileForm() {
         updatedAt: serverTimestamp(),
       }
 
-      setDocumentNonBlocking(profileDocRef, dataToSave, { merge: true });
+      await setDoc(profileDocRef, dataToSave, { merge: true });
 
       toast({
         title: "Profil mis à jour !",
@@ -131,6 +130,7 @@ function ProfileForm() {
                   <FirebaseStorageUploader 
                     storagePath="profile/profile-image.jpg"
                     onUploadComplete={(url) => field.onChange(url)}
+                    onUploadStateChange={setIsUploading}
                     currentFileUrl={field.value}
                     label="Importer ou remplacer la photo"
                   />
@@ -153,6 +153,7 @@ function ProfileForm() {
                   <FirebaseStorageUploader 
                     storagePath="profile/about-image.jpg"
                     onUploadComplete={(url) => field.onChange(url)}
+                     onUploadStateChange={setIsUploading}
                     currentFileUrl={field.value}
                     label="Importer ou remplacer l'image"
                   />
@@ -201,9 +202,9 @@ function ProfileForm() {
               </FormItem>
             )}
           />
-          <Button type="submit" disabled={isSaving}>
-            {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Sauvegarder les modifications
+          <Button type="submit" disabled={isSaving || isUploading}>
+            {(isSaving || isUploading) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isUploading ? 'Importation en cours...' : 'Sauvegarder les modifications'}
           </Button>
         </form>
       </Form>

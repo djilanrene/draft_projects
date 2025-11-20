@@ -13,6 +13,7 @@ import { resizeImage } from "@/lib/image-optimizer";
 interface FirebaseStorageUploaderProps {
   storagePath: string;
   onUploadComplete: (url: string) => void;
+  onUploadStateChange?: (isUploading: boolean) => void;
   currentFileUrl?: string;
   acceptedFileTypes?: string; // e.g., "image/*", ".pdf"
   label: string;
@@ -21,6 +22,7 @@ interface FirebaseStorageUploaderProps {
 export function FirebaseStorageUploader({
   storagePath,
   onUploadComplete,
+  onUploadStateChange,
   currentFileUrl,
   acceptedFileTypes = "image/*",
   label,
@@ -36,6 +38,15 @@ export function FirebaseStorageUploader({
   const handleFileSelect = () => {
     fileInputRef.current?.click();
   };
+  
+  const setUploading = (isUploading: boolean) => {
+    if (onUploadStateChange) {
+      onUploadStateChange(isUploading);
+    }
+    if (!isUploading) {
+        setIsProcessing(false);
+    }
+  }
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -44,6 +55,7 @@ export function FirebaseStorageUploader({
     setUploadProgress(0);
     setUploadError(null);
     setIsProcessing(true);
+    setUploading(true);
 
     try {
       let fileToUpload: Blob = file;
@@ -70,16 +82,18 @@ export function FirebaseStorageUploader({
           console.error("Upload failed:", error);
           setUploadError("L'importation a échoué. Veuillez réessayer.");
           setUploadProgress(null);
+          setUploading(false);
         },
         () => {
           getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
             onUploadComplete(downloadURL);
             setUploadProgress(100); // Mark as complete
+            setUploading(false);
           });
         }
       );
     } catch (err: any) {
-        setIsProcessing(false);
+        setUploading(false);
         setUploadError(err.message || "Une erreur est survenue lors de la préparation du fichier.");
     }
   };

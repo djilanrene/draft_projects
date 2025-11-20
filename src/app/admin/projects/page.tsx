@@ -95,6 +95,7 @@ function ProjectForm({
   const firestore = useFirestore();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = React.useState(false);
+  const [isUploading, setIsUploading] = React.useState(false);
   const formProjectId = React.useMemo(() => project?.id || doc(collection(firestore, "projects")).id, [project, firestore]);
 
   const form = useForm<ProjectFormValues>({
@@ -211,6 +212,7 @@ function ProjectForm({
                  <FirebaseStorageUploader
                     storagePath={`projects/${formProjectId}/featured-image.jpg`}
                     onUploadComplete={(url) => field.onChange(url)}
+                    onUploadStateChange={setIsUploading}
                     currentFileUrl={field.value}
                     label="Importer ou remplacer l'image"
                   />
@@ -296,9 +298,9 @@ function ProjectForm({
           <DialogClose asChild>
             <Button type="button" variant="ghost">Annuler</Button>
           </DialogClose>
-          <Button type="submit" disabled={isLoading}>
-            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {project ? "Sauvegarder les modifications" : "Créer le projet"}
+          <Button type="submit" disabled={isLoading || isUploading}>
+            {(isLoading || isUploading) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isUploading ? 'Importation en cours...' : (project ? "Sauvegarder les modifications" : "Créer le projet")}
           </Button>
         </DialogFooter>
       </form>
