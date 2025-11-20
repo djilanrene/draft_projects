@@ -23,6 +23,7 @@ export type Profile = {
   aboutText1: string;
   aboutText2: string;
   aboutText3: string;
+  updatedAt?: Timestamp;
 }
 
 export type SocialLink = {

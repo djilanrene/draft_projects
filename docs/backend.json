@@ -101,6 +101,11 @@
         "aboutText3": {
           "type": "string",
           "description": "Third paragraph for the 'About Me' page."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp of the last update."
         }
       },
       "required": [

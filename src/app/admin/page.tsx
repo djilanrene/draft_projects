@@ -7,12 +7,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
-import { collection } from "firebase/firestore";
-import type { Project, Article } from "@/lib/types";
+import { useCollection, useDoc, useFirestore, useMemoFirebase } from "@/firebase";
+import { collection, doc } from "firebase/firestore";
+import type { Project, Article, SocialLink, Profile } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
 
-function StatCard({ title, description, count, isLoading }: { title: string, description: string, count: number, isLoading: boolean }) {
+function StatCard({ title, description, value, isLoading }: { title: string, description: string, value: string | number, isLoading: boolean }) {
     return (
         <Card>
             <CardHeader className="pb-2">
@@ -23,7 +25,27 @@ function StatCard({ title, description, count, isLoading }: { title: string, des
                 {isLoading ? (
                     <Skeleton className="h-8 w-16" />
                 ) : (
-                    <div className="text-4xl font-bold">{count}</div>
+                    <div className="text-4xl font-bold">{value}</div>
+                )}
+            </CardContent>
+        </Card>
+    );
+}
+
+function StatCardDate({ title, description, date, isLoading }: { title: string, description: string, date: Date | undefined, isLoading: boolean }) {
+    return (
+        <Card>
+            <CardHeader className="pb-2">
+                <CardTitle>{title}</CardTitle>
+                <CardDescription>{description}</CardDescription>
+            </CardHeader>
+            <CardContent>
+                {isLoading ? (
+                    <Skeleton className="h-6 w-32" />
+                ) : date ? (
+                    <div className="text-xl font-semibold">{format(date, "d MMMM yyyy 'à' HH:mm", { locale: fr })}</div>
+                ) : (
+                     <div className="text-xl font-semibold text-muted-foreground">Jamais modifié</div>
                 )}
             </CardContent>
         </Card>
@@ -46,6 +68,18 @@ export default function AdminDashboard() {
   );
   const { data: articles, isLoading: isLoadingArticles } = useCollection<Article>(articlesQuery);
 
+  const socialLinksQuery = useMemoFirebase(
+    () => (firestore ? collection(firestore, "social_links") : null),
+    [firestore]
+  );
+  const { data: socialLinks, isLoading: isLoadingSocialLinks } = useCollection<SocialLink>(socialLinksQuery);
+  
+  const profileRef = useMemoFirebase(
+    () => (firestore ? doc(firestore, "profile", "main") : null),
+    [firestore]
+  );
+  const { data: profile, isLoading: isLoadingProfile } = useDoc<Profile>(profileRef);
+
   return (
     <div className="space-y-8">
       <div className="space-y-2">
@@ -58,33 +92,27 @@ export default function AdminDashboard() {
         <StatCard 
             title="Projets"
             description="Nombre total de projets"
-            count={projects?.length || 0}
+            value={projects?.length ?? 0}
             isLoading={isLoadingProjects}
         />
          <StatCard 
             title="Articles"
             description="Nombre total d'articles"
-            count={articles?.length || 0}
+            value={articles?.length ?? 0}
             isLoading={isLoadingArticles}
         />
-        <Card>
-          <CardHeader>
-            <CardTitle>Profil</CardTitle>
-            <CardDescription>Mettez à jour vos informations.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p>Modifiez votre biographie et vos photos.</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Réseaux Sociaux</CardTitle>
-            <CardDescription>Gérez vos liens sociaux.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p>Ajoutez ou mettez à jour vos profils.</p>
-          </CardContent>
-        </Card>
+        <StatCard
+            title="Réseaux Sociaux"
+            description="Nombre de liens"
+            value={socialLinks?.length ?? 0}
+            isLoading={isLoadingSocialLinks}
+        />
+        <StatCardDate
+            title="Profil"
+            description="Dernière modification"
+            date={profile?.updatedAt?.toDate()}
+            isLoading={isLoadingProfile}
+        />
       </div>
        <div className="pt-8">
         <Card>

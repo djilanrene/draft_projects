@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { doc } from "firebase/firestore";
+import { doc, serverTimestamp } from "firebase/firestore";
 import { useDoc, useFirestore, useMemoFirebase } from "@/firebase";
 import { Button } from "@/components/ui/button";
 import {
@@ -78,7 +78,12 @@ function ProfileForm() {
       if (!firestore) throw new Error("Firestore is not available");
       const profileDocRef = doc(firestore, "profile", "main");
       
-      setDocumentNonBlocking(profileDocRef, values, { merge: true });
+      const dataToSave = {
+        ...values,
+        updatedAt: serverTimestamp(),
+      }
+
+      setDocumentNonBlocking(profileDocRef, dataToSave, { merge: true });
 
       toast({
         title: "Profil mis à jour !",
