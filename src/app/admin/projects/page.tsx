@@ -42,7 +42,7 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import type { Project } from "@/lib/types";
-import { Loader2, PlusCircle, MoreHorizontal, Trash2, Github, Globe } from "lucide-react";
+import { Loader2, PlusCircle, MoreHorizontal, Trash2, Github, Globe, Eye } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -63,8 +63,7 @@ import {
 import { deleteDocumentNonBlocking } from "@/firebase/non-blocking-updates";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { FirebaseStorageUploader } from "@/components/FirebaseStorageUploader";
-
+import Link from "next/link";
 
 const resourceSchema = z.object({
   label: z.string().min(1, "Le label est requis."),
@@ -74,7 +73,7 @@ const resourceSchema = z.object({
 
 const projectSchema = z.object({
   title: z.string().min(1, "Le titre est requis."),
-  excerpt: z.string().min(1, "Le résumé est requis."),
+  excerpt: z.string().min(1, "Le résumé est requis.").max(160, "Le résumé ne doit pas dépasser 160 caractères."),
   content: z.string().min(1, "Le contenu est requis."),
   category: z.string().min(1, "La catégorie est requise."),
   imageUrl: z.string().url("L'URL de l'image est invalide.").optional().or(z.literal('')),
@@ -171,6 +170,9 @@ function ProjectForm({
               <FormControl>
                 <Textarea placeholder="Description courte pour la carte du projet." {...field} />
               </FormControl>
+               <FormDescription>
+                Maximum 160 caractères.
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -287,14 +289,26 @@ function ProjectForm({
           </div>
         </div>
 
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button type="button" variant="ghost">Annuler</Button>
-          </DialogClose>
-          <Button type="submit" disabled={isLoading}>
-            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {project ? "Sauvegarder les modifications" : "Créer le projet"}
-          </Button>
+        <DialogFooter className="justify-between sm:justify-between">
+          <div>
+            {project && (
+              <Button type="button" variant="outline" asChild>
+                <Link href={`/projects/${project.id}`} target="_blank">
+                  <Eye className="mr-2 h-4 w-4" />
+                  Prévisualiser
+                </Link>
+              </Button>
+            )}
+          </div>
+          <div className="flex gap-2">
+            <DialogClose asChild>
+              <Button type="button" variant="ghost">Annuler</Button>
+            </DialogClose>
+            <Button type="submit" disabled={isLoading}>
+              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {project ? "Sauvegarder les modifications" : "Créer le projet"}
+            </Button>
+          </div>
         </DialogFooter>
       </form>
     </Form>

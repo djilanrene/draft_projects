@@ -33,6 +33,7 @@ import {
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -45,7 +46,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import type { Article } from "@/lib/types";
-import { Loader2, PlusCircle, MoreHorizontal } from "lucide-react";
+import { Loader2, PlusCircle, MoreHorizontal, Eye } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -67,11 +68,11 @@ import { deleteDocumentNonBlocking } from "@/firebase/non-blocking-updates";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { FirebaseStorageUploader } from "@/components/FirebaseStorageUploader";
+import Link from "next/link";
 
 const articleSchema = z.object({
   title: z.string().min(1, "Le titre est requis"),
-  excerpt: z.string().min(1, "Un résumé est requis"),
+  excerpt: z.string().min(1, "Un résumé est requis").max(160, "Le résumé ne doit pas dépasser 160 caractères."),
   content: z.string().min(1, "Le contenu est requis"),
   imageUrl: z.string().url("L'URL de l'image est invalide").optional().or(z.literal('')),
   imageHint: z.string().optional(),
@@ -158,6 +159,9 @@ function ArticleForm({
               <FormControl>
                 <Textarea placeholder="Court résumé de l'article" {...field} />
               </FormControl>
+              <FormDescription>
+                Maximum 160 caractères.
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -188,14 +192,26 @@ function ArticleForm({
             </FormItem>
           )}
         />
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button type="button" variant="ghost">Annuler</Button>
-          </DialogClose>
-          <Button type="submit" disabled={isLoading}>
-            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-             {article ? "Sauvegarder les modifications" : "Créer l'article"}
-          </Button>
+        <DialogFooter className="justify-between sm:justify-between">
+           <div>
+            {article && (
+              <Button type="button" variant="outline" asChild>
+                <Link href={`/blog/${article.id}`} target="_blank">
+                  <Eye className="mr-2 h-4 w-4" />
+                  Prévisualiser
+                </Link>
+              </Button>
+            )}
+          </div>
+          <div className="flex gap-2">
+            <DialogClose asChild>
+              <Button type="button" variant="ghost">Annuler</Button>
+            </DialogClose>
+            <Button type="submit" disabled={isLoading}>
+              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {article ? "Sauvegarder les modifications" : "Créer l'article"}
+            </Button>
+          </div>
         </DialogFooter>
       </form>
     </Form>
