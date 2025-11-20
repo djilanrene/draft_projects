@@ -6,9 +6,14 @@ import { ProjectCard } from "@/components/project-card";
 import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search } from "lucide-react";
+import { TypewriterEffect } from "@/components/typewriter-effect";
 
 export default function Home() {
   const [searchTerm, setSearchTerm] = React.useState("");
+
+  const words = "Apprendre, Créer, Automatiser".split(" ").map(word => {
+    return { text: word };
+  });
 
   const filteredProjects = React.useMemo(() => {
     if (!searchTerm) {
@@ -25,9 +30,7 @@ export default function Home() {
   return (
     <main className="px-4 md:px-6 py-12 md:py-24">
       <div className="text-center">
-        <h1 className="font-headline text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl">
-          Apprendre, Créer, Automatiser
-        </h1>
+        <TypewriterEffect words={words} className="font-headline text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl justify-center" />
         <p className="mx-auto mt-4 max-w-[700px] text-muted-foreground md:text-xl">
           Une collection de petits projets et d'expérimentations, nés ici et là.
         </p>
