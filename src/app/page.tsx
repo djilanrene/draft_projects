@@ -26,10 +26,10 @@ export default function Home() {
     <main className="container py-12 md:py-24">
       <div className="text-center">
         <h1 className="font-headline text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl">
-          Découvrez Mes Projets
+          Draft Projects
         </h1>
         <p className="mx-auto mt-4 max-w-[700px] text-muted-foreground md:text-xl">
-          Une sélection de mes travaux récents en design et développement.
+          Explorez une collection de projets conceptuels et de travaux en cours.
         </p>
       </div>
 
@@ -46,26 +46,28 @@ export default function Home() {
         </div>
       </div>
 
-      <AnimatePresence>
-        <motion.div 
-            layout 
-            className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-        >
-          {filteredProjects.map((project) => (
-            <motion.div layout key={project.id} animate={{ opacity: 1 }} initial={{ opacity: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}>
-                <ProjectCard project={project} />
-            </motion.div>
-          ))}
-        </motion.div>
-      </AnimatePresence>
-      {filteredProjects.length === 0 && (
-          <div className="mt-16 text-center text-muted-foreground">
-              <p>Aucun projet ne correspond à votre recherche.</p>
-          </div>
-      )}
+      <div className="mx-auto max-w-5xl">
+        <AnimatePresence>
+          <motion.div 
+              layout 
+              className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+          >
+            {filteredProjects.map((project) => (
+              <motion.div layout key={project.id} animate={{ opacity: 1 }} initial={{ opacity: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}>
+                  <ProjectCard project={project} />
+              </motion.div>
+            ))}
+          </motion.div>
+        </AnimatePresence>
+        {filteredProjects.length === 0 && (
+            <div className="mt-16 text-center text-muted-foreground">
+                <p>Aucun projet ne correspond à votre recherche.</p>
+            </div>
+        )}
+      </div>
     </main>
   );
 }

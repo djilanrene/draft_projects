@@ -40,40 +40,50 @@ export function SiteHeader() {
       )}
     >
       <div className="container flex h-16 items-center">
-        <div className="mr-4 hidden md:flex">
+        <div className="flex w-full items-center justify-between">
+          <div className="flex items-center gap-6 md:hidden">
+            <Button variant="ghost" size="icon" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+              {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              <span className="sr-only">Ouvrir le menu</span>
+            </Button>
+          </div>
+
+          <div className="hidden md:flex">
             <Link href="/" className="flex items-center space-x-2">
-                <Avatar className="h-8 w-8">
-                  {profileImage && <AvatarImage src={profileImage.imageUrl} alt="Profile" />}
-                  <AvatarFallback>
-                    <UserCircle className="h-5 w-5" />
-                  </AvatarFallback>
-                </Avatar>
-                <span className="hidden font-bold sm:inline-block">Élégance</span>
+              <span className="font-bold sm:inline-block">Draft Projects</span>
             </Link>
-        </div>
+          </div>
 
-        <nav className="hidden items-center gap-6 text-sm md:flex md:flex-1 md:justify-center">
-          {navLinks.map(link => (
+          <nav className="hidden absolute left-1/2 -translate-x-1/2 items-center gap-6 text-sm md:flex">
             <Link
-              key={link.href}
-              href={link.href}
-              className={cn(
-                "transition-colors hover:text-primary",
-                pathname === link.href ? "text-primary font-semibold" : "text-foreground/60"
-              )}
-            >
-              {link.label}
+                href="/"
+                className="flex items-center space-x-2"
+              >
+              <Avatar className="h-8 w-8">
+                {profileImage && <AvatarImage src={profileImage.imageUrl} alt="Profile" />}
+                <AvatarFallback>
+                  <UserCircle className="h-5 w-5" />
+                </AvatarFallback>
+              </Avatar>
             </Link>
-          ))}
-        </nav>
-        
-        <div className="flex flex-1 items-center justify-end md:hidden">
-          <Button variant="ghost" size="icon" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            <span className="sr-only">Ouvrir le menu</span>
-          </Button>
+            {navLinks.map(link => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={cn(
+                  "transition-colors hover:text-primary",
+                  pathname === link.href ? "text-primary font-semibold" : "text-foreground/60"
+                )}
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+          
+          <div className="flex items-center justify-end">
+             {/* Espace réservé pour d'éventuels futurs éléments à droite */}
+          </div>
         </div>
-
       </div>
       {isMenuOpen && (
         <div className="md:hidden">

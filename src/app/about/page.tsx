@@ -7,7 +7,7 @@ export default function AboutPage() {
 
   return (
     <div className="container max-w-5xl py-12 md:py-24">
-      <div className="grid grid-cols-1 items-center gap-12 md:grid-cols-2">
+      <div className="mx-auto grid max-w-3xl grid-cols-1 items-center gap-12 md:grid-cols-2">
         <div className="order-2 md:order-1">
           <h1 className="font-headline text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl">
             À Propos de Moi

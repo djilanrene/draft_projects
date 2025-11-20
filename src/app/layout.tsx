@@ -6,8 +6,8 @@ import { SiteFooter } from '@/components/site-footer';
 import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: 'Élégance Portfolio',
-  description: 'Portfolio minimaliste et élégant.',
+  title: 'Draft Projects',
+  description: 'Un portfolio pour présenter des projets en cours de développement.',
 };
 
 export default function RootLayout({
