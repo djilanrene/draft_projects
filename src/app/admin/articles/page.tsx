@@ -89,7 +89,6 @@ function ArticleForm({
   const firestore = useFirestore();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = React.useState(false);
-  const [isUploading, setIsUploading] = React.useState(false);
   const formArticleId = React.useMemo(() => article?.id || doc(collection(firestore, "articles")).id, [article, firestore]);
 
   const form = useForm<ArticleFormValues>({
@@ -181,15 +180,9 @@ function ArticleForm({
           name="imageUrl"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Image de l'article</FormLabel>
+              <FormLabel>URL de l'image de l'article</FormLabel>
               <FormControl>
-                <FirebaseStorageUploader
-                  storagePath={`articles/${formArticleId}/featured-image.jpg`}
-                  onUploadComplete={(url) => field.onChange(url)}
-                  onUploadStateChange={setIsUploading}
-                  currentFileUrl={field.value}
-                  label="Importer ou remplacer l'image"
-                />
+                <Input placeholder="https://..." {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -199,9 +192,9 @@ function ArticleForm({
           <DialogClose asChild>
             <Button type="button" variant="ghost">Annuler</Button>
           </DialogClose>
-          <Button type="submit" disabled={isLoading || isUploading}>
-            {(isLoading || isUploading) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-             {isUploading ? 'Importation en cours...' : (article ? "Sauvegarder les modifications" : "Créer l'article")}
+          <Button type="submit" disabled={isLoading}>
+            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+             {article ? "Sauvegarder les modifications" : "Créer l'article"}
           </Button>
         </DialogFooter>
       </form>

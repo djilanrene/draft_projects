@@ -13,6 +13,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
@@ -45,7 +46,6 @@ function ProfileForm() {
   const firestore = useFirestore();
   const { toast } = useToast();
   const [isSaving, setIsSaving] = React.useState(false);
-  const [isUploading, setIsUploading] = React.useState(false);
 
   const profileRef = useMemoFirebase(
     () => (firestore ? doc(firestore, "profile", "main") : null),
@@ -125,15 +125,9 @@ function ProfileForm() {
             name="profileImageUrl"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Photo de profil</FormLabel>
+                <FormLabel>URL de la photo de profil</FormLabel>
                 <FormControl>
-                  <FirebaseStorageUploader 
-                    storagePath="profile/profile-image.jpg"
-                    onUploadComplete={(url) => field.onChange(url)}
-                    onUploadStateChange={setIsUploading}
-                    currentFileUrl={field.value}
-                    label="Importer ou remplacer la photo"
-                  />
+                  <Input placeholder="https://..." {...field} />
                 </FormControl>
                 <FormDescription>
                     Cette image apparaît dans la barre de navigation.
@@ -148,15 +142,9 @@ function ProfileForm() {
             name="aboutImageUrl"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Image de la page "À propos"</FormLabel>
+                <FormLabel>URL de l'image de la page "À propos"</FormLabel>
                 <FormControl>
-                  <FirebaseStorageUploader 
-                    storagePath="profile/about-image.jpg"
-                    onUploadComplete={(url) => field.onChange(url)}
-                     onUploadStateChange={setIsUploading}
-                    currentFileUrl={field.value}
-                    label="Importer ou remplacer l'image"
-                  />
+                  <Input placeholder="https://..." {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -202,9 +190,9 @@ function ProfileForm() {
               </FormItem>
             )}
           />
-          <Button type="submit" disabled={isSaving || isUploading}>
-            {(isSaving || isUploading) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {isUploading ? 'Importation en cours...' : 'Sauvegarder les modifications'}
+          <Button type="submit" disabled={isSaving}>
+            {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Sauvegarder les modifications
           </Button>
         </form>
       </Form>

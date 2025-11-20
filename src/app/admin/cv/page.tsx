@@ -12,9 +12,10 @@ import {
 } from "@/components/ui/card";
 import { useDoc, useFirestore, useMemoFirebase } from "@/firebase";
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
-import { FirebaseStorageUploader } from "@/components/FirebaseStorageUploader";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
 
 type CvInfo = {
@@ -26,8 +27,7 @@ export default function AdminCvPage() {
   const firestore = useFirestore();
   const { toast } = useToast();
 
-  const [newCvUrl, setNewCvUrl] = React.useState<string | null>(null);
-  const [isUploading, setIsUploading] = React.useState(false);
+  const [cvUrl, setCvUrl] = React.useState("");
   const [isSaving, setIsSaving] = React.useState(false);
 
   const cvRef = useMemoFirebase(
@@ -35,29 +35,26 @@ export default function AdminCvPage() {
     [firestore]
   );
   const { data: cvData, isLoading } = useDoc<CvInfo>(cvRef);
-
-  const handleUploadComplete = (url: string) => {
-    setNewCvUrl(url);
-  };
   
-  const handleCancel = () => {
-    setNewCvUrl(null);
-  }
+  React.useEffect(() => {
+    if (cvData) {
+      setCvUrl(cvData.url);
+    }
+  }, [cvData]);
 
   const handleSave = async () => {
-    if (!firestore || !cvRef || !newCvUrl) return;
+    if (!firestore || !cvRef) return;
     setIsSaving(true);
     try {
       const dataToSave = {
-        url: newCvUrl,
+        url: cvUrl,
         updatedAt: serverTimestamp(),
       };
       await setDoc(cvRef, dataToSave, { merge: true });
       toast({
         title: "CV mis à jour !",
-        description: "Votre nouveau CV a été sauvegardé avec succès.",
+        description: "L'URL de votre CV a été sauvegardée.",
       });
-      setNewCvUrl(null); // Reset after saving
     } catch (error: any) {
        toast({
         variant: "destructive",
@@ -74,44 +71,42 @@ export default function AdminCvPage() {
       <header>
         <h1 className="text-3xl font-bold tracking-tight">Gestion du CV</h1>
         <p className="text-muted-foreground">
-          Importez et mettez à jour votre CV au format PDF.
+          Mettez à jour le lien vers votre CV au format PDF.
         </p>
       </header>
       <Card>
         <CardHeader>
           <CardTitle>Votre CV</CardTitle>
           <CardDescription>
-            Le fichier que vous importez ici sera accessible publiquement via le
-            lien "Télécharger mon CV" dans l'en-tête du site. Assurez-vous
-            qu'il est au format PDF.
+            Collez ici l'URL publique de votre CV. Ce lien sera utilisé pour le
+            bouton "Télécharger mon CV" sur votre site.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="max-w-md">
-            {isLoading ? (
-              <Skeleton className="h-10 w-full" />
-            ) : (
-              <FirebaseStorageUploader
-                storagePath="cv/cv.pdf"
-                onUploadComplete={handleUploadComplete}
-                onUploadStateChange={setIsUploading}
-                currentFileUrl={cvData?.url}
-                acceptedFileTypes=".pdf"
-                label="Importer un nouveau CV (PDF)"
-                disabled={isUploading || isSaving}
+          {isLoading ? (
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-1/4" />
+              <Skeleton className="h-10 w-full max-w-md" />
+            </div>
+          ) : (
+            <div className="space-y-2 max-w-md">
+              <Label htmlFor="cv-url">URL du CV</Label>
+              <Input
+                id="cv-url"
+                value={cvUrl}
+                onChange={(e) => setCvUrl(e.target.value)}
+                placeholder="https://example.com/mon-cv.pdf"
+                disabled={isSaving}
               />
-            )}
-          </div>
+            </div>
+          )}
         </CardContent>
-        {newCvUrl && (
-          <CardFooter className="flex justify-end gap-2 border-t pt-6">
-             <Button variant="ghost" onClick={handleCancel} disabled={isSaving}>Annuler</Button>
-             <Button onClick={handleSave} disabled={isSaving}>
-                 {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                 Sauvegarder le CV
-             </Button>
-          </CardFooter>
-        )}
+        <CardFooter className="border-t pt-6">
+           <Button onClick={handleSave} disabled={isSaving || isLoading}>
+               {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+               Sauvegarder
+           </Button>
+        </CardFooter>
       </Card>
     </div>
   );
