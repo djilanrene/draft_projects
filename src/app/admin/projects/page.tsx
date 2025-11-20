@@ -119,7 +119,7 @@ function ProjectForm({
       const id = project?.id || doc(collection(firestore, "projects")).id;
       const projectRef = doc(firestore, "projects", id);
 
-      const dataToSave = {
+      const dataToSave: Project = {
         ...values,
         id,
       };

@@ -3,8 +3,8 @@ import type { Timestamp } from "firebase/firestore";
 export type Project = {
   id: string;
   title: string;
-  excerpt: string; // Changed from description
-  content: string; // Added for markdown details
+  excerpt: string;
+  content: string;
   category: string;
   software: string[];
   imageUrl: string;
