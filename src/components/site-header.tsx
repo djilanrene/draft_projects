@@ -39,7 +39,7 @@ export function SiteHeader() {
           : "bg-transparent"
       )}
     >
-      <div className="container flex h-16 items-center">
+      <div className="px-4 md:px-6 flex h-16 items-center">
         <div className="flex w-full items-center justify-between">
           <div className="flex items-center gap-6 md:hidden">
             <Button variant="ghost" size="icon" onClick={() => setIsMenuOpen(!isMenuOpen)}>

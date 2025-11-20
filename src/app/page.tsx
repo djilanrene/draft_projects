@@ -23,7 +23,7 @@ export default function Home() {
   }, [searchTerm]);
 
   return (
-    <main className="container py-12 md:py-24">
+    <main className="px-4 md:px-6 py-12 md:py-24">
       <div className="text-center">
         <h1 className="font-headline text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl">
           Draft Projects
@@ -46,7 +46,7 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-5xl">
+      <div className="mx-auto max-w-7xl">
         <AnimatePresence>
           <motion.div 
               layout 

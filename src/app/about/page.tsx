@@ -6,7 +6,7 @@ export default function AboutPage() {
   const profileImage = PlaceHolderImages.find((img) => img.id === 'profile');
 
   return (
-    <div className="container max-w-5xl py-12 md:py-24">
+    <div className="max-w-5xl mx-auto py-12 md:py-24 px-4 md:px-6">
       <div className="mx-auto grid max-w-3xl grid-cols-1 items-center gap-12 md:grid-cols-2">
         <div className="order-2 md:order-1">
           <h1 className="font-headline text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl">
