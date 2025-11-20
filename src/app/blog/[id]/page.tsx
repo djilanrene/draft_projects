@@ -9,6 +9,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 
 export default function ArticlePage({ params }: { params: { id: string } }) {
   const firestore = useFirestore();
@@ -57,6 +59,19 @@ export default function ArticlePage({ params }: { params: { id: string } }) {
         <MarkdownRenderer content={article.content} />
       </div>
 
+      {article.tags && article.tags.length > 0 && (
+        <footer className="mt-12">
+          <Separator />
+          <div className="pt-8 flex items-center gap-4">
+            <h3 className="text-lg font-semibold">Tags:</h3>
+            <div className="flex flex-wrap gap-2">
+              {article.tags.map(tag => (
+                <Badge key={tag} variant="secondary">{tag}</Badge>
+              ))}
+            </div>
+          </div>
+        </footer>
+      )}
     </article>
   );
 }
@@ -80,8 +95,17 @@ function ArticlePageSkeleton() {
         <Skeleton className="h-6 w-full" />
         <Skeleton className="h-6 w-1/2" />
       </div>
+
+       <div className="mt-12">
+          <Separator />
+          <div className="pt-8 flex items-center gap-4">
+             <Skeleton className="h-8 w-20" />
+            <div className="flex flex-wrap gap-2">
+                <Skeleton className="h-6 w-24" />
+                <Skeleton className="h-6 w-20" />
+            </div>
+          </div>
+        </div>
     </div>
   );
 }
-
-    

@@ -36,7 +36,7 @@ function ArticleCard({ article }: { article: Article }) {
         <CardFooter>
           {publishedDate && (
             <p className="text-sm text-muted-foreground">
-              {format(publishedDate, "d MMMM yyyy", { locale: fr })}
+              {format(publishedDate, "d MMMM yyyy 'à' HH:mm", { locale: fr })}
             </p>
           )}
         </CardFooter>
@@ -61,9 +61,11 @@ export default function BlogPage() {
     if (!searchTerm) {
       return articles;
     }
+    const lowercasedTerm = searchTerm.toLowerCase();
     return articles.filter(article =>
-      article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      article.excerpt.toLowerCase().includes(searchTerm.toLowerCase())
+      article.title.toLowerCase().includes(lowercasedTerm) ||
+      article.excerpt.toLowerCase().includes(lowercasedTerm) ||
+      article.tags?.some(tag => tag.toLowerCase().includes(lowercasedTerm))
     );
   }, [searchTerm, articles]);
 
@@ -95,7 +97,7 @@ export default function BlogPage() {
           <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
           <Input
             type="search"
-            placeholder="Rechercher des articles..."
+            placeholder="Rechercher par titre, contenu, ou tag..."
             className="w-full rounded-full bg-muted pl-10 pr-4 py-2 text-base"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
