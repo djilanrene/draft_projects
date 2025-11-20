@@ -27,7 +27,6 @@ export function SiteHeader() {
   const profileImage = PlaceHolderImages.find((img) => img.id === 'profile');
   
   const navLinks = [
-    { href: "/", label: "Accueil" },
     { href: "/about", label: "À Propos" },
     { href: "/cv.pdf", label: "Télécharger mon CV", download: true },
   ];
