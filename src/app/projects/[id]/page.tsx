@@ -44,11 +44,12 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
   );
   const { data: project, isLoading } = useDoc<Project>(projectRef);
 
-
+  // Show a skeleton loader while the document is loading.
   if (isLoading) {
     return <ProjectDetailSkeleton />;
   }
 
+  // After loading is complete, if there's still no project, then it's a 404.
   if (!project) {
     notFound();
   }
