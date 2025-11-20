@@ -36,7 +36,7 @@ export default function ArticlePage({ params }: { params: { id: string } }) {
         </h1>
         {publishedDate && (
             <p className="text-muted-foreground">
-                Publié le {format(publishedDate, "d MMMM yyyy", { locale: fr })}
+                Publié le {format(publishedDate, "d MMMM yyyy 'à' HH:mm", { locale: fr })}
             </p>
         )}
       </header>
@@ -83,3 +83,5 @@ function ArticlePageSkeleton() {
     </div>
   );
 }
+
+    
