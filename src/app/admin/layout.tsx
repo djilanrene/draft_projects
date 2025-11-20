@@ -60,7 +60,7 @@ function AdminLayout({ children }: { children: React.ReactNode }) {
   const handleLogout = async () => {
     if (!auth) return;
     await signOut(auth);
-    router.push("/admin/login");
+    router.push("/");
   };
 
   const navItems = [
