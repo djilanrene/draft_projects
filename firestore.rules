@@ -36,5 +36,11 @@ service cloud.firestore {
       allow get, list: if true;
       allow write: if isAdmin();
     }
+
+    // CV document is public to read, but only admin can write.
+    match /cv/{cvId} {
+      allow get, list: if true;
+      allow write: if isAdmin();
+    }
   }
 }
