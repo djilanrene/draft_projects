@@ -14,9 +14,13 @@
           "type": "string",
           "description": "Title of the project."
         },
-        "description": {
+        "excerpt": {
           "type": "string",
-          "description": "Detailed description of the project."
+          "description": "A short summary or excerpt for the project, displayed on cards."
+        },
+        "content": {
+            "type": "string",
+            "description": "The full content/details of the project in Markdown format."
         },
         "imageUrl": {
           "type": "string",
@@ -61,7 +65,8 @@
       "required": [
         "id",
         "title",
-        "description",
+        "excerpt",
+        "content",
         "imageUrl",
         "category",
         "software"

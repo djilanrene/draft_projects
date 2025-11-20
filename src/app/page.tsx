@@ -35,7 +35,7 @@ export default function Home() {
     }
     return projects.filter(project =>
       project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      project.excerpt.toLowerCase().includes(searchTerm.toLowerCase()) ||
       project.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
       project.software.some(s => s.toLowerCase().includes(searchTerm.toLowerCase()))
     );

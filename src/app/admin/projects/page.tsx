@@ -4,9 +4,6 @@ import * as React from "react";
 import {
   collection,
   doc,
-  setDoc,
-  deleteDoc,
-  serverTimestamp,
 } from "firebase/firestore";
 import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
 import { Button } from "@/components/ui/button";
@@ -31,6 +28,7 @@ import {
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -39,11 +37,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import type { Project } from "@/lib/types";
-import { Loader2, PlusCircle, MoreHorizontal, Trash2 } from "lucide-react";
+import { Loader2, PlusCircle, MoreHorizontal, Trash2, Github, Globe } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -63,16 +61,24 @@ import {
 } from "@/components/ui/alert-dialog";
 import { setDocumentNonBlocking, deleteDocumentNonBlocking } from "@/firebase/non-blocking-updates";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
+
+const resourceSchema = z.object({
+  label: z.string().min(1, "Le label est requis."),
+  url: z.string().url("L'URL est invalide."),
+  type: z.enum(["website", "github"]),
+});
 
 const projectSchema = z.object({
-  title: z.string().min(1, "Le titre est requis"),
-  description: z.string().min(1, "La description est requise"),
-  category: z.string().min(1, "La catégorie est requise"),
-  imageUrl: z.string().url("L'URL de l'image est invalide"),
+  title: z.string().min(1, "Le titre est requis."),
+  excerpt: z.string().min(1, "Le résumé est requis."),
+  content: z.string().min(1, "Le contenu est requis."),
+  category: z.string().min(1, "La catégorie est requise."),
+  imageUrl: z.string().url("L'URL de l'image est invalide."),
   imageHint: z.string().optional(),
   software: z.string().transform(val => val ? val.split(',').map(s => s.trim()) : []),
-  // Resources are optional and can be managed later
+  resources: z.array(resourceSchema).optional(),
 });
 
 type ProjectFormValues = z.infer<typeof projectSchema>;
@@ -92,12 +98,19 @@ function ProjectForm({
     resolver: zodResolver(projectSchema),
     defaultValues: {
       title: project?.title || "",
-      description: project?.description || "",
+      excerpt: project?.excerpt || "",
+      content: project?.content || "",
       category: project?.category || "",
       imageUrl: project?.imageUrl || "",
       imageHint: project?.imageHint || "",
       software: project?.software?.join(", ") || "",
+      resources: project?.resources || [],
     },
+  });
+  
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "resources",
   });
 
   const onSubmit = async (values: ProjectFormValues) => {
@@ -132,7 +145,7 @@ function ProjectForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <FormField
           control={form.control}
           name="title"
@@ -148,12 +161,25 @@ function ProjectForm({
         />
         <FormField
           control={form.control}
-          name="description"
+          name="excerpt"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Description</FormLabel>
+              <FormLabel>Résumé (Excerpt)</FormLabel>
               <FormControl>
-                <Textarea placeholder="Description courte du projet" {...field} />
+                <Textarea placeholder="Description courte pour la carte du projet." {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+         <FormField
+          control={form.control}
+          name="content"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Contenu (Markdown)</FormLabel>
+              <FormControl>
+                <Textarea placeholder="Contenu détaillé du projet au format Markdown." rows={10} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -198,6 +224,66 @@ function ProjectForm({
             </FormItem>
           )}
         />
+        
+        <div>
+          <FormLabel>Liens de ressources</FormLabel>
+          <div className="space-y-4 mt-2">
+            {fields.map((field, index) => (
+              <Card key={field.id} className="p-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                   <FormField
+                      control={form.control}
+                      name={`resources.${index}.label`}
+                      render={({ field }) => (
+                        <FormItem>
+                           <FormLabel className="text-xs">Label</FormLabel>
+                          <FormControl><Input placeholder="Visiter le site" {...field} /></FormControl>
+                        </FormItem>
+                      )}
+                    />
+                     <FormField
+                      control={form.control}
+                      name={`resources.${index}.url`}
+                      render={({ field }) => (
+                        <FormItem>
+                           <FormLabel className="text-xs">URL</FormLabel>
+                           <FormControl><Input placeholder="https://..." {...field} /></FormControl>
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name={`resources.${index}.type`}
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className="text-xs">Type</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Choisir un type" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        <SelectItem value="website"><Globe className="mr-2 h-4 w-4 inline"/> Site Web</SelectItem>
+                                        <SelectItem value="github"><Github className="mr-2 h-4 w-4 inline"/> GitHub</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </FormItem>
+                        )}
+                    />
+                </div>
+                 <Button type="button" variant="ghost" size="sm" className="mt-2 text-destructive" onClick={() => remove(index)}>
+                  <Trash2 className="mr-2 h-4 w-4" /> Supprimer ce lien
+                </Button>
+              </Card>
+            ))}
+            <Button type="button" variant="outline" size="sm" onClick={() => append({ label: '', url: '', type: 'website' })}>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Ajouter un lien
+            </Button>
+          </div>
+        </div>
+
         <DialogFooter>
           <DialogClose asChild>
             <Button type="button" variant="ghost">Annuler</Button>
@@ -217,7 +303,7 @@ function ProjectDialog({ project, children }: { project?: Project, children: Rea
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{project ? "Modifier le projet" : "Nouveau Projet"}</DialogTitle>
           <DialogDescription>

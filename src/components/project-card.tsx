@@ -14,7 +14,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
       <Card className="flex h-full flex-col overflow-hidden transition-transform duration-300 hover:scale-105 hover:shadow-xl">
         <CardHeader>
           <CardTitle>{project.title}</CardTitle>
-          <CardDescription>{project.description}</CardDescription>
+          <CardDescription>{project.excerpt}</CardDescription>
         </CardHeader>
         <CardContent className="flex-grow">
           <div className="aspect-video overflow-hidden rounded-lg border">

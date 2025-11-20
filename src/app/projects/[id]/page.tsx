@@ -9,9 +9,26 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { Github, Globe, Loader2 } from "lucide-react";
+import { Github, Globe } from "lucide-react";
 import type { Project } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
+
+// This is a simple markdown-to-html converter.
+// For a real app, you might want to use a more robust library like 'marked' or 'react-markdown'.
+function SimpleMarkdown({ content }: { content: string }) {
+    const htmlContent = content
+        .split('\n')
+        .map(line => {
+            if (line.startsWith('### ')) return `<h3>${line.substring(4)}</h3>`;
+            if (line.startsWith('## ')) return `<h2>${line.substring(3)}</h2>`;
+            if (line.startsWith('# ')) return `<h1>${line.substring(2)}</h1>`;
+            if (line.trim() === '') return '<br />';
+            return `<p>${line}</p>`;
+        })
+        .join('');
+
+    return <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: htmlContent }} />;
+}
 
 
 const resourceIcons = {
@@ -36,14 +53,6 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
     notFound();
   }
 
-  const SectionTitle = ({ children }: { children: React.ReactNode }) => (
-    <h2 className="font-headline text-3xl font-bold tracking-tight mt-12 mb-4">{children}</h2>
-  );
-
-  const SectionParagraph = ({ children }: { children: React.ReactNode }) => (
-    <p className="text-foreground/80 mb-4">{children}</p>
-  );
-
   return (
     <div className="container mx-auto py-12 md:py-24 px-4 md:px-6">
       <div className="grid grid-cols-1 md:grid-cols-5 gap-12">
@@ -61,7 +70,7 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
               ))}
             </div>
             <p className="text-muted-foreground md:text-xl/relaxed">
-              {project.description}
+              {project.excerpt}
             </p>
 
             {project.resources && project.resources.length > 0 && (
@@ -99,46 +108,8 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
 
       <Separator className="my-12" />
 
-      <div className="max-w-4xl mx-auto">
-        <section>
-          <SectionTitle>Contexte du Projet</SectionTitle>
-          <SectionParagraph>
-            C'est ici que vous décrivez le problème initial ou l'opportunité. Quel était le besoin du client ou le point de départ de cette expérimentation ? Expliquez les objectifs principaux et les défis attendus.
-          </SectionParagraph>
-          <SectionParagraph>
-            Exemple : Le client, une startup dans le secteur de la food-tech, souhaitait créer une application mobile pour faciliter la commande de repas sains. Le principal défi était de concevoir une expérience utilisateur simple et rapide, tout en proposant un large choix de personnalisation.
-          </SectionParagraph>
-        </section>
-        
-        <section>
-          <SectionTitle>Processus de Conception</SectionTitle>
-          <SectionParagraph>
-            Décrivez les étapes de votre processus de conception. Avez-vous commencé par des recherches utilisateurs, des wireframes, des maquettes interactives ? Quels outils avez-vous utilisés (Figma, Sketch, etc.) ?
-          </SectionParagraph>
-          <SectionParagraph>
-            Justifiez vos choix de conception. Pourquoi cette palette de couleurs, cette typographie, ou cette disposition ? Comment cela répond-il aux besoins de l'utilisateur final ?
-          </SectionParagraph>
-        </section>
-
-        <section>
-          <SectionTitle>Développement et Implémentation</SectionTitle>
-          <SectionParagraph>
-            Expliquez comment vous avez donné vie au projet. Quelles technologies avez-vous utilisées (React, Next.js, etc.) ? Avez-vous rencontré des défis techniques particuliers ?
-          </SectionParagraph>
-          <SectionParagraph>
-            C'est l'occasion de mettre en avant vos compétences techniques. Mentionnez les librairies spécifiques, les API que vous avez intégrées, ou les optimisations de performance que vous avez mises en place.
-          </SectionParagraph>
-        </section>
-
-        <section>
-          <SectionTitle>Résultats et Apprentissages</SectionTitle>
-          <SectionParagraph>
-            Quel a été le résultat final ? Le projet a-t-il atteint ses objectifs ? Si possible, incluez des métriques de succès (augmentation de l'engagement, amélioration des conversions, etc.).
-          </SectionParagraph>
-          <SectionParagraph>
-            Partagez également ce que vous avez appris au cours de ce projet. Chaque projet est une opportunité d'apprendre, que ce soit une nouvelle compétence technique, une meilleure compréhension d'un secteur d'activité, ou une nouvelle méthode de travail.
-          </SectionParagraph>
-        </section>
+      <div className="max-w-4xl mx-auto space-y-6 text-lg text-foreground/80">
+        <SimpleMarkdown content={project.content} />
       </div>
     </div>
   );
