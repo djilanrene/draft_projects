@@ -41,6 +41,24 @@
       "description": "Mobile app interface design.",
       "imageUrl": "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxtb2JpbGUlMjBhcHB8ZW58MHx8fHwxNzYzNTc5MTY5fDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "mobile app"
+    },
+    {
+      "id": "blog-1",
+      "description": "A person writing in a notebook.",
+      "imageUrl": "https://images.unsplash.com/photo-1455390582262-044cdead277a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHx3cml0aW5nJTIwbm90ZWJvb2t8ZW58MHx8fHwxNzYzNjIyNzY0fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "writing notebook"
+    },
+    {
+      "id": "blog-2",
+      "description": "A developer coding on a laptop.",
+      "imageUrl": "https://images.unsplash.com/photo-1542831371-29b0f74f9713?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjb2RpbmclMjBwb3J0Zm9saW98ZW58MHx8fHwxNzYzNjIyNzY0fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "coding portfolio"
+    },
+    {
+      "id": "blog-3",
+      "description": "A team collaborating on a project.",
+      "imageUrl": "https://images.unsplash.com/photo-1517048676732-d65bc937f952?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHx0ZWFtJTIwY29sbGFib3JhdGlvbnxlbnwwfHx8fDE3NjM2MjI3NjR8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "team collaboration"
     }
   ]
 }
