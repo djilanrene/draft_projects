@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "./theme-toggle";
 
 export function SiteHeader() {
   const [isScrolled, setIsScrolled] = React.useState(false);
@@ -84,7 +85,7 @@ export function SiteHeader() {
           </nav>
           
           <div className="flex items-center justify-end">
-             {/* Espace réservé pour d'éventuels futurs éléments à droite */}
+             <ThemeToggle />
           </div>
         </div>
       </div>
