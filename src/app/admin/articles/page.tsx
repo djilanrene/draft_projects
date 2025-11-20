@@ -8,6 +8,7 @@ import {
   deleteDoc,
   query,
   orderBy,
+  setDoc,
 } from "firebase/firestore";
 import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
 import { Button } from "@/components/ui/button";
@@ -62,7 +63,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { setDocumentNonBlocking, deleteDocumentNonBlocking } from "@/firebase/non-blocking-updates";
+import { deleteDocumentNonBlocking } from "@/firebase/non-blocking-updates";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -113,7 +114,7 @@ function ArticleForm({
         publishedDate: article?.publishedDate || serverTimestamp(), 
       };
 
-      setDocumentNonBlocking(articleRef, dataToSave, { merge: true });
+      await setDoc(articleRef, dataToSave, { merge: true });
 
       toast({
         title: article ? "Article mis à jour !" : "Article créé !",

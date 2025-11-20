@@ -4,6 +4,7 @@ import * as React from "react";
 import {
   collection,
   doc,
+  setDoc,
 } from "firebase/firestore";
 import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
 import { Button } from "@/components/ui/button";
@@ -59,7 +60,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { setDocumentNonBlocking, deleteDocumentNonBlocking } from "@/firebase/non-blocking-updates";
+import { deleteDocumentNonBlocking } from "@/firebase/non-blocking-updates";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FirebaseStorageUploader } from "@/components/FirebaseStorageUploader";
@@ -121,18 +122,12 @@ function ProjectForm({
     try {
       const projectRef = doc(firestore, "projects", formProjectId);
 
-      const dataToSave: Omit<Project, 'id'> & { id?: string } = {
+      const dataToSave = {
         ...values,
+        id: formProjectId,
       };
-      
-      // Ensure the id is not overwritten if it exists
-      if (project) {
-        dataToSave.id = project.id;
-      } else {
-        dataToSave.id = formProjectId;
-      }
 
-      setDocumentNonBlocking(projectRef, dataToSave, { merge: true });
+      await setDoc(projectRef, dataToSave, { merge: true });
 
       toast({
         title: project ? "Projet mis à jour !" : "Projet créé !",
