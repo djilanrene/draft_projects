@@ -34,6 +34,7 @@ export function SiteHeader() {
 
   const navLinks = [
     { href: "/about", label: "À Propos" },
+    { href: "/blog", label: "Blog" },
     { href: "/cv.pdf", label: "Télécharger mon CV", download: true },
   ];
 
@@ -81,7 +82,7 @@ export function SiteHeader() {
                 rel={link.download ? "noopener noreferrer" : undefined}
                 className={cn(
                   "transition-colors hover:text-primary",
-                  pathname === link.href ? "text-primary font-semibold" : "text-foreground/60"
+                  pathname.startsWith(link.href) ? "text-primary font-semibold" : "text-foreground/60"
                 )}
               >
                 {link.label}
@@ -106,7 +107,7 @@ export function SiteHeader() {
                       rel={link.download ? "noopener noreferrer" : undefined}
                       className={cn(
                         "text-lg transition-colors hover:text-primary",
-                        pathname === link.href ? "text-primary font-semibold" : "text-foreground/80"
+                        pathname.startsWith(link.href) ? "text-primary font-semibold" : "text-foreground/80"
                       )}
                     >
                       {link.label}

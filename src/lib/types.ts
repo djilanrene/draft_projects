@@ -1,3 +1,5 @@
+import type { Timestamp } from "firebase/firestore";
+
 export type Project = {
   id: string;
   title: string;
@@ -28,3 +30,13 @@ export type SocialLink = {
   url: string;
   icon: string;
 }
+
+export type Article = {
+  id: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  imageUrl: string;
+  imageHint: string;
+  publishedDate: Timestamp;
+};
