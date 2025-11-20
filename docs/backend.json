@@ -1,0 +1,244 @@
+{
+  "entities": {
+    "Project": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Project",
+      "type": "object",
+      "description": "Represents a project in the portfolio.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the project."
+        },
+        "title": {
+          "type": "string",
+          "description": "Title of the project."
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed description of the project."
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "URL of the project's main image."
+        },
+        "previewFileUrl": {
+          "type": "string",
+          "description": "URL of the visual preview file (image or video)."
+        },
+        "categoryIds": {
+          "type": "array",
+          "description": "References to Categories. (Relationship: Project N:N Category)",
+          "items": {
+            "type": "string"
+          }
+        },
+        "softwareIds": {
+          "type": "array",
+          "description": "References to Software. (Relationship: Project N:N Software)",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "description",
+        "imageUrl",
+        "categoryIds",
+        "softwareIds"
+      ]
+    },
+    "Category": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Category",
+      "type": "object",
+      "description": "Represents a category for projects.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the category."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the category."
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ]
+    },
+    "Software": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Software",
+      "type": "object",
+      "description": "Represents a software used in a project.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the software."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the software."
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ]
+    },
+    "Profile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Profile",
+      "type": "object",
+      "description": "Represents the user's profile information.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the profile (only one profile should exist)."
+        },
+        "profileImageUrl": {
+          "type": "string",
+          "description": "URL of the profile image."
+        },
+        "aboutImageUrl": {
+          "type": "string",
+          "description": "URL of the image for the 'About Me' page."
+        },
+        "aboutText": {
+          "type": "string",
+          "description": "Text content for the 'About Me' page."
+        }
+      },
+      "required": [
+        "id",
+        "profileImageUrl",
+        "aboutText"
+      ]
+    },
+    "SocialLink": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "SocialLink",
+      "type": "object",
+      "description": "Represents a social media link.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the social link."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the social media platform (e.g., 'LinkedIn', 'GitHub')."
+        },
+        "url": {
+          "type": "string",
+          "description": "URL of the social media profile."
+        },
+        "icon": {
+          "type": "string",
+          "description": "Icon identifier for the social media platform."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "url",
+        "icon"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/projects/{projectId}",
+        "definition": {
+          "entityName": "Project",
+          "schema": {
+            "$ref": "#/backend/entities/Project"
+          },
+          "description": "Stores project details. Requires admin access for create, update, and delete operations.",
+          "params": [
+            {
+              "name": "projectId",
+              "description": "Unique identifier for the project."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/categories/{categoryId}",
+        "definition": {
+          "entityName": "Category",
+          "schema": {
+            "$ref": "#/backend/entities/Category"
+          },
+          "description": "Stores categories for projects. Requires admin access for create, update, and delete operations.",
+          "params": [
+            {
+              "name": "categoryId",
+              "description": "Unique identifier for the category."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/software/{softwareId}",
+        "definition": {
+          "entityName": "Software",
+          "schema": {
+            "$ref": "#/backend/entities/Software"
+          },
+          "description": "Stores software tags for projects. Requires admin access for create, update, and delete operations.",
+          "params": [
+            {
+              "name": "softwareId",
+              "description": "Unique identifier for the software."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/profile/{profileId}",
+        "definition": {
+          "entityName": "Profile",
+          "schema": {
+            "$ref": "#/backend/entities/Profile"
+          },
+          "description": "Stores the profile information. Only one profile document should exist. Requires admin access for create, update, and delete operations.",
+          "params": [
+            {
+              "name": "profileId",
+              "description": "Unique identifier for the profile (should be a constant, e.g., 'main_profile')."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/social_links/{socialLinkId}",
+        "definition": {
+          "entityName": "SocialLink",
+          "schema": {
+            "$ref": "#/backend/entities/SocialLink"
+          },
+          "description": "Stores social media links. Requires admin access for create, update, and delete operations.",
+          "params": [
+            {
+              "name": "socialLinkId",
+              "description": "Unique identifier for the social link."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to support a portfolio website with projects, categories, software tags, a profile page, and social media links. It prioritizes security, scalability, and ease of management, adhering to the principles of Authorization Independence, Clarity of Intent, DBAC (Database-Based Access Control), and Rules are Not Filters (QAPs).  \n\n**Authorization Independence:** Access control is simplified by avoiding hierarchical dependencies. The admin back-office creates all the data and does not require user-based authorization.   \n\n**Structural Segregation:**  Each collection serves a specific purpose, and documents within a collection share the same security posture. This segregation simplifies security rules, as rules can be applied to entire collections without needing complex logic to differentiate documents.\n\n**Access Modeling:**  A path-based approach is adopted for core entities, like profile and social links. This approach simplifies access control rules. Since only the admin can create/modify any data, it's not required to store any roles inside the database or denormalize authorization.\n\n**QAPs Support:** The segregation of concerns into separate collections ensures efficient and secure list operations. Each collection's data has uniform access requirements, preventing filtering within the rules themselves. All data is edited via backoffice, which requires authentication with appropriate role."
+  }
+}

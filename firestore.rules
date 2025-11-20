@@ -1,0 +1,147 @@
+/**
+ * Core Philosophy:
+ * This ruleset implements a strict Admin-centric security model suitable for a
+ * portfolio or content website managed through a dedicated backoffice. The core
+ * principle is that all write operations (create, update, delete) are exclusively
+ * reserved for a single, authenticated administrator. All content (projects,
+ * profile information, categories, etc.) is considered public and is therefore
+ * readable by anyone, including unauthenticated visitors.
+ *
+ * Data Structure:
+ * The data is organized into a flat structure of top-level collections:
+ * - /projects: Contains all portfolio project documents.
+ * - /categories: Contains categories used to classify projects.
+ * - /software: Contains software tags used for projects.
+ * - /profile: A singleton collection intended to hold a single document with profile information.
+ * - /social_links: Contains links to social media profiles for the site footer.
+ *
+ * Key Security Decisions:
+ * - Admin Role Identification: Admin access is determined by checking the authenticated
+ *   user's UID against a hardcoded value in the `isAdmin()` function. This avoids
+ *   storing roles in the database, simplifying the rules for a single-admin scenario.
+ *   **ACTION REQUIRED:** The developer must replace the placeholder UID with their actual
+ *   Firebase Authentication Admin UID.
+ * - Public Read Access: All collections are publicly readable (`get`, `list`) to
+ *   ensure the portfolio website can display content to all visitors.
+ * - Admin-Only Writes: All write permissions (`create`, `update`, `delete`) across
+ *   all collections are gated by the `isAdmin()` check.
+ * - No User-Specific Data: There are no user-owned documents or subcollections,
+ *   which simplifies the ruleset by removing the need for ownership checks.
+ *
+ * Denormalization for Authorization:
+ * This ruleset uses a hardcoded UID for authorization, which is the simplest form of
+ * "denormalization". The admin role is not looked up from the database; it is defined
+ * directly within the rules logic. This is highly performant and secure for a
+ * single-administrator application.
+ *
+ * Structural Segregation:
+ * Each top-level collection (`projects`, `categories`, etc.) serves a distinct
+ * purpose and shares the same security profile (public read, admin write). This
+ * clear separation allows for simple, powerful rules applied at the collection level.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // -------------------------------------------------------------------------
+    // Helper Functions
+    // -------------------------------------------------------------------------
+
+    /**
+     * Checks if the request is from the designated administrator.
+     * IMPORTANT: Replace 'YOUR_ADMIN_UID_HERE' with the actual UID of the admin user.
+     */
+    function isAdmin() {
+      return request.auth.uid == 'YOUR_ADMIN_UID_HERE';
+    }
+
+    // -------------------------------------------------------------------------
+    // Collection Rules
+    // -------------------------------------------------------------------------
+
+    /**
+     * @description Controls access to project documents. Projects are publicly visible
+     *   but can only be created, modified, or deleted by the administrator.
+     * @path /projects/{projectId}
+     * @allow (get) Any user, signed in or not, can read a project.
+     * @allow (create) The admin (auth.uid == 'YOUR_ADMIN_UID_HERE') can create a new project.
+     * @deny (update) A non-admin user (auth.uid == 'some_other_user') cannot update a project.
+     * @principle Public Read with Admin-Only Writes. Ensures portfolio content is
+     *   visible to the public while protecting it from unauthorized modification.
+     */
+    match /projects/{projectId} {
+      allow get, list: if true;
+      allow create: if isAdmin();
+      allow update: if isAdmin() && resource != null;
+      allow delete: if isAdmin() && resource != null;
+    }
+
+    /**
+     * @description Controls access to project categories. Categories are public
+     *   but managed exclusively by the administrator.
+     * @path /categories/{categoryId}
+     * @allow (list) Any client can list all available categories.
+     * @allow (create) The admin (auth.uid == 'YOUR_ADMIN_UID_HERE') can add a new category.
+     * @deny (delete) A non-admin user (auth.uid == 'some_other_user') cannot delete a category.
+     * @principle Public Read with Admin-Only Writes. Essential for displaying
+     *   project filters while maintaining administrative control over the taxonomy.
+     */
+    match /categories/{categoryId} {
+      allow get, list: if true;
+      allow create: if isAdmin();
+      allow update: if isAdmin() && resource != null;
+      allow delete: if isAdmin() && resource != null;
+    }
+
+    /**
+     * @description Controls access to software tags. Software tags are public
+     *   but managed exclusively by the administrator.
+     * @path /software/{softwareId}
+     * @allow (get) Any user can read a specific software tag document.
+     * @allow (create) The admin (auth.uid == 'YOUR_ADMIN_UID_HERE') can add new software.
+     * @deny (update) An unauthenticated user cannot update a software tag.
+     * @principle Public Read with Admin-Only Writes. Allows public clients to see
+     *   which software was used in projects, while writes are locked down.
+     */
+    match /software/{softwareId} {
+      allow get, list: if true;
+      allow create: if isAdmin();
+      allow update: if isAdmin() && resource != null;
+      allow delete: if isAdmin() && resource != null;
+    }
+
+    /**
+     * @description Controls access to the main profile document. The profile is
+     *   publicly visible but can only be edited by the administrator.
+     * @path /profile/{profileId}
+     * @allow (get) Any user can read the site's profile information.
+     * @allow (update) The admin (auth.uid == 'YOUR_ADMIN_UID_HERE') can update the profile.
+     * @deny (create) A non-admin user cannot create a new profile document.
+     * @principle Public Read with Admin-Only Writes. Secures the core "About Me"
+     *   content of the site, allowing only the owner to change it.
+     */
+    match /profile/{profileId} {
+      allow get, list: if true;
+      allow create: if isAdmin();
+      allow update: if isAdmin() && resource != null;
+      allow delete: if isAdmin() && resource != null;
+    }
+
+    /**
+     * @description Controls access to social media links. These links are public
+     *   for display in the UI (e.g., footer) but are managed by the admin.
+     * @path /social_links/{socialLinkId}
+     * @allow (list) Any client can list all social links to render them.
+     * @allow (create) The admin (auth.uid == 'YOUR_ADMIN_UID_HERE') can add a new social link.
+     * @deny (delete) A non-admin user cannot delete a social link.
+     * @principle Public Read with Admin-Only Writes. Ensures social links can be
+     *   publicly displayed while preventing anyone but the admin from changing them.
+     */
+    match /social_links/{socialLinkId} {
+      allow get, list: if true;
+      allow create: if isAdmin();
+      allow update: if isAdmin() && resource != null;
+      allow delete: if isAdmin() && resource != null;
+    }
+  }
+}
