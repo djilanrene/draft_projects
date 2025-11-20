@@ -1,38 +1,26 @@
 "use client";
 
 import * as React from "react";
-import { projects, categories, software as allSoftware } from "@/app/lib/projects-data";
+import { projects } from "@/app/lib/projects-data";
 import { ProjectCard } from "@/components/project-card";
-import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
+import { Search } from "lucide-react";
 
 export default function Home() {
-  const [filteredProjects, setFilteredProjects] = React.useState(projects);
-  const [selectedCategory, setSelectedCategory] = React.useState("all");
-  const [selectedSoftware, setSelectedSoftware] = React.useState("all");
+  const [searchTerm, setSearchTerm] = React.useState("");
 
-  React.useEffect(() => {
-    let tempProjects = projects;
-    
-    if (selectedCategory !== "all") {
-      tempProjects = tempProjects.filter(p => p.category === selectedCategory);
+  const filteredProjects = React.useMemo(() => {
+    if (!searchTerm) {
+      return projects;
     }
-    
-    if (selectedSoftware !== "all") {
-      tempProjects = tempProjects.filter(p => p.software.includes(selectedSoftware));
-    }
-    
-    setFilteredProjects(tempProjects);
-  }, [selectedCategory, selectedSoftware]);
-
-  const handleCategoryChange = (category: string) => {
-    setSelectedCategory(category);
-  };
-  
-  const handleSoftwareChange = (software: string) => {
-    setSelectedSoftware(software);
-  };
+    return projects.filter(project =>
+      project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      project.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      project.software.some(s => s.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
+  }, [searchTerm]);
 
   return (
     <main className="container py-12 md:py-24">
@@ -45,43 +33,17 @@ export default function Home() {
         </p>
       </div>
 
-      <div className="my-12 flex flex-wrap items-center justify-center gap-4">
-        <div className="flex items-center gap-2">
-            <span className="text-sm font-medium">Catégorie:</span>
-            <Select value={selectedCategory} onValueChange={handleCategoryChange}>
-                <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Toutes" />
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectItem value="all">Toutes</SelectItem>
-                    {categories.map((cat) => (
-                        <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                    ))}
-                </SelectContent>
-            </Select>
+      <div className="my-12 flex justify-center">
+        <div className="relative w-full max-w-md">
+          <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            type="search"
+            placeholder="Rechercher des projets..."
+            className="w-full rounded-full bg-muted pl-10 pr-4 py-2 text-base"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
-        <div className="flex items-center gap-2">
-            <span className="text-sm font-medium">Logiciel:</span>
-            <Select value={selectedSoftware} onValueChange={handleSoftwareChange}>
-                <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Tous" />
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectItem value="all">Tous</SelectItem>
-                    {allSoftware.map((sw) => (
-                        <SelectItem key={sw} value={sw}>{sw}</SelectItem>
-                    ))}
-                </SelectContent>
-            </Select>
-        </div>
-        <Button 
-            variant="ghost" 
-            onClick={() => {
-                setSelectedCategory("all");
-                setSelectedSoftware("all");
-            }}>
-            Réinitialiser
-        </Button>
       </div>
 
       <AnimatePresence>
@@ -101,7 +63,7 @@ export default function Home() {
       </AnimatePresence>
       {filteredProjects.length === 0 && (
           <div className="mt-16 text-center text-muted-foreground">
-              <p>Aucun projet ne correspond à votre sélection.</p>
+              <p>Aucun projet ne correspond à votre recherche.</p>
           </div>
       )}
     </main>
