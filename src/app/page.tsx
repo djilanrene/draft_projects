@@ -26,7 +26,7 @@ export default function Home() {
     <main className="px-4 md:px-6 py-12 md:py-24">
       <div className="text-center">
         <h1 className="font-headline text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl">
-          Draft Projects
+          Concepts & Expérimentations
         </h1>
         <p className="mx-auto mt-4 max-w-[700px] text-muted-foreground md:text-xl">
           Explorez une collection de projets conceptuels et de travaux en cours.
