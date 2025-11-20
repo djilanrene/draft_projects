@@ -42,7 +42,10 @@ export const projects: Project[] = [
     description: 'Développement complet de l\'identité visuelle pour une marque de mode durable.',
     category: 'Branding',
     software: ['Illustrator', 'Photoshop'],
-    ...getImage('project-2')
+    ...getImage('project-2'),
+    resources: [
+      { label: 'Voir la présentation', url: '#', type: 'website' },
+    ]
   },
   {
     id: '3',
@@ -64,6 +67,7 @@ export const projects: Project[] = [
     ...getImage('project-4'),
     resources: [
       { label: 'Site Web', url: '#', type: 'website' },
+      { label: 'GitHub', url: '#', type: 'github' },
     ]
   },
   {
@@ -72,7 +76,10 @@ export const projects: Project[] = [
     description: 'Modernisation du logo et de la charte graphique d\'une société de conseil.',
     category: 'Branding',
     software: ['Illustrator'],
-    ...getImage('project-5')
+    ...getImage('project-5'),
+    resources: [
+        { label: 'Voir la présentation', url: '#', type: 'website' },
+    ]
   },
   {
     id: '6',
@@ -80,7 +87,10 @@ export const projects: Project[] = [
     description: 'Design d\'un tableau de bord complexe pour la visualisation de données financières.',
     category: 'UI/UX',
     software: ['Figma', 'Tableau'],
-    ...getImage('project-6')
+    ...getImage('project-6'),
+    resources: [
+        { label: 'Voir sur Figma', url: '#', type: 'website' },
+    ]
   },
 ];
 
