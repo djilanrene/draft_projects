@@ -1,9 +1,17 @@
 import { projects } from "@/app/lib/projects-data";
 import Image from "next/image";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
+import { Github, Globe } from "lucide-react";
+
+const resourceIcons = {
+  website: Globe,
+  github: Github,
+};
 
 export default function ProjectDetailPage({ params }: { params: { id: string } }) {
   const project = projects.find((p) => p.id === params.id);
@@ -39,6 +47,22 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
             <p className="text-muted-foreground md:text-xl/relaxed">
               {project.description}
             </p>
+
+            {project.resources && project.resources.length > 0 && (
+              <div className="flex flex-wrap gap-4 pt-4">
+                {project.resources.map((resource) => {
+                  const Icon = resourceIcons[resource.type as keyof typeof resourceIcons];
+                  return (
+                    <Button key={resource.url} asChild variant="outline">
+                      <Link href={resource.url} target="_blank" rel="noopener noreferrer">
+                        {Icon && <Icon className="mr-2 h-4 w-4" />}
+                        {resource.label}
+                      </Link>
+                    </Button>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
         <div className="md:col-span-2">
