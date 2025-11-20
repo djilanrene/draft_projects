@@ -14,9 +14,10 @@ interface FirebaseStorageUploaderProps {
   storagePath: string;
   onUploadComplete: (url: string) => void;
   onUploadStateChange?: (isUploading: boolean) => void;
-  currentFileUrl?: string;
+  currentFileUrl?: string | null;
   acceptedFileTypes?: string; // e.g., "image/*", ".pdf"
   label: string;
+  disabled?: boolean;
 }
 
 export function FirebaseStorageUploader({
@@ -26,6 +27,7 @@ export function FirebaseStorageUploader({
   currentFileUrl,
   acceptedFileTypes = "image/*",
   label,
+  disabled = false,
 }: FirebaseStorageUploaderProps) {
   const storage = useStorage();
   const [uploadProgress, setUploadProgress] = React.useState<number | null>(null);
@@ -107,14 +109,14 @@ export function FirebaseStorageUploader({
         onChange={handleFileChange}
         className="hidden"
         accept={acceptedFileTypes}
-        disabled={isProcessing || (uploadProgress !== null && uploadProgress < 100)}
+        disabled={disabled || isProcessing || (uploadProgress !== null && uploadProgress < 100)}
       />
       <Button 
         type="button" 
         variant="outline" 
         className="w-full" 
         onClick={handleFileSelect}
-        disabled={isProcessing || (uploadProgress !== null && uploadProgress < 100)}
+        disabled={disabled || isProcessing || (uploadProgress !== null && uploadProgress < 100)}
       >
         {isProcessing ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />

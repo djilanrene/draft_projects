@@ -6,23 +6,29 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useDoc, useFirestore, useMemoFirebase, setDocumentNonBlocking } from "@/firebase";
-import { doc } from "firebase/firestore";
+import { useDoc, useFirestore, useMemoFirebase } from "@/firebase";
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { FirebaseStorageUploader } from "@/components/FirebaseStorageUploader";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Loader2 } from "lucide-react";
 
 type CvInfo = {
   url: string;
   updatedAt: any;
-}
+};
 
 export default function AdminCvPage() {
   const firestore = useFirestore();
   const { toast } = useToast();
+
+  const [newCvUrl, setNewCvUrl] = React.useState<string | null>(null);
+  const [isUploading, setIsUploading] = React.useState(false);
+  const [isSaving, setIsSaving] = React.useState(false);
 
   const cvRef = useMemoFirebase(
     () => (firestore ? doc(firestore, "cv", "main") : null),
@@ -31,16 +37,36 @@ export default function AdminCvPage() {
   const { data: cvData, isLoading } = useDoc<CvInfo>(cvRef);
 
   const handleUploadComplete = (url: string) => {
-    if (!firestore) return;
-    const dataToSave = {
-      url: url,
-      updatedAt: new Date(),
-    };
-    setDocumentNonBlocking(cvRef, dataToSave, { merge: true });
-    toast({
-      title: "CV mis à jour !",
-      description: "Votre nouveau CV a été sauvegardé avec succès.",
-    });
+    setNewCvUrl(url);
+  };
+  
+  const handleCancel = () => {
+    setNewCvUrl(null);
+  }
+
+  const handleSave = async () => {
+    if (!firestore || !cvRef || !newCvUrl) return;
+    setIsSaving(true);
+    try {
+      const dataToSave = {
+        url: newCvUrl,
+        updatedAt: serverTimestamp(),
+      };
+      await setDoc(cvRef, dataToSave, { merge: true });
+      toast({
+        title: "CV mis à jour !",
+        description: "Votre nouveau CV a été sauvegardé avec succès.",
+      });
+      setNewCvUrl(null); // Reset after saving
+    } catch (error: any) {
+       toast({
+        variant: "destructive",
+        title: "Oh non ! Une erreur est survenue.",
+        description: error.message || "Impossible de sauvegarder le CV.",
+      });
+    } finally {
+        setIsSaving(false);
+    }
   };
 
   return (
@@ -63,18 +89,29 @@ export default function AdminCvPage() {
         <CardContent>
           <div className="max-w-md">
             {isLoading ? (
-                <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
             ) : (
               <FirebaseStorageUploader
                 storagePath="cv/cv.pdf"
                 onUploadComplete={handleUploadComplete}
+                onUploadStateChange={setIsUploading}
                 currentFileUrl={cvData?.url}
                 acceptedFileTypes=".pdf"
                 label="Importer un nouveau CV (PDF)"
+                disabled={isUploading || isSaving}
               />
             )}
           </div>
         </CardContent>
+        {newCvUrl && (
+          <CardFooter className="flex justify-end gap-2 border-t pt-6">
+             <Button variant="ghost" onClick={handleCancel} disabled={isSaving}>Annuler</Button>
+             <Button onClick={handleSave} disabled={isSaving}>
+                 {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                 Sauvegarder le CV
+             </Button>
+          </CardFooter>
+        )}
       </Card>
     </div>
   );
