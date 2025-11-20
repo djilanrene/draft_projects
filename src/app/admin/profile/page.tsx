@@ -20,7 +20,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import type { Profile } from "@/lib/types";
-import { Loader2, Upload } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { setDocumentNonBlocking } from "@/firebase/non-blocking-updates";
 import {
   Card,
@@ -30,10 +30,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { FirebaseStorageUploader } from "@/components/FirebaseStorageUploader";
 
 const profileSchema = z.object({
-  profileImageUrl: z.string().url("L'URL est invalide."),
-  aboutImageUrl: z.string().url("L'URL est invalide."),
+  profileImageUrl: z.string().url("L'URL est invalide.").optional().or(z.literal('')),
+  aboutImageUrl: z.string().url("L'URL est invalide.").optional().or(z.literal('')),
   aboutImageHint: z.string().optional(),
   aboutText1: z.string().min(1, "Ce paragraphe est requis."),
   aboutText2: z.string().min(1, "Ce paragraphe est requis."),
@@ -120,30 +121,46 @@ function ProfileForm() {
     <CardContent>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          <FormItem>
-            <FormLabel>Photo de profil</FormLabel>
-            <FormControl>
-                <Button variant="outline" className="w-full" onClick={(e) => {e.preventDefault(); alert("Fonctionnalité d'import à venir !")}}>
-                  <Upload className="mr-2 h-4 w-4" />
-                  Importer une image
-                </Button>
-            </FormControl>
-            <FormDescription>
-                Cette image apparaît dans la barre de navigation.
-            </FormDescription>
-            <FormMessage />
-          </FormItem>
+          <FormField
+            control={form.control}
+            name="profileImageUrl"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Photo de profil</FormLabel>
+                <FormControl>
+                  <FirebaseStorageUploader 
+                    storagePath="profile/profile-image.jpg"
+                    onUploadComplete={(url) => field.onChange(url)}
+                    currentFileUrl={field.value}
+                    label="Importer ou remplacer la photo"
+                  />
+                </FormControl>
+                <FormDescription>
+                    Cette image apparaît dans la barre de navigation.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           
-          <FormItem>
-            <FormLabel>Image de la page "À propos"</FormLabel>
-            <FormControl>
-               <Button variant="outline" className="w-full" onClick={(e) => {e.preventDefault(); alert("Fonctionnalité d'import à venir !")}}>
-                  <Upload className="mr-2 h-4 w-4" />
-                  Importer une image
-                </Button>
-            </FormControl>
-            <FormMessage />
-          </FormItem>
+          <FormField
+            control={form.control}
+            name="aboutImageUrl"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Image de la page "À propos"</FormLabel>
+                <FormControl>
+                  <FirebaseStorageUploader 
+                    storagePath="profile/about-image.jpg"
+                    onUploadComplete={(url) => field.onChange(url)}
+                    currentFileUrl={field.value}
+                    label="Importer ou remplacer l'image"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
           <FormField
             control={form.control}

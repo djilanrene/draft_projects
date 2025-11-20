@@ -41,7 +41,7 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import type { Project } from "@/lib/types";
-import { Loader2, PlusCircle, MoreHorizontal, Trash2, Github, Globe, Upload } from "lucide-react";
+import { Loader2, PlusCircle, MoreHorizontal, Trash2, Github, Globe } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -62,6 +62,7 @@ import {
 import { setDocumentNonBlocking, deleteDocumentNonBlocking } from "@/firebase/non-blocking-updates";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { FirebaseStorageUploader } from "@/components/FirebaseStorageUploader";
 
 
 const resourceSchema = z.object({
@@ -75,7 +76,7 @@ const projectSchema = z.object({
   excerpt: z.string().min(1, "Le résumé est requis."),
   content: z.string().min(1, "Le contenu est requis."),
   category: z.string().min(1, "La catégorie est requise."),
-  imageUrl: z.string().url("L'URL de l'image est invalide."),
+  imageUrl: z.string().url("L'URL de l'image est invalide.").optional().or(z.literal('')),
   imageHint: z.string().optional(),
   software: z.string().transform(val => val ? val.split(',').map(s => s.trim()) : []),
   resources: z.array(resourceSchema).optional(),
@@ -93,6 +94,7 @@ function ProjectForm({
   const firestore = useFirestore();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = React.useState(false);
+  const formProjectId = React.useMemo(() => project?.id || doc(collection(firestore, "projects")).id, [project, firestore]);
 
   const form = useForm<ProjectFormValues>({
     resolver: zodResolver(projectSchema),
@@ -117,13 +119,18 @@ function ProjectForm({
     if (!firestore) return;
     setIsLoading(true);
     try {
-      const id = project?.id || doc(collection(firestore, "projects")).id;
-      const projectRef = doc(firestore, "projects", id);
+      const projectRef = doc(firestore, "projects", formProjectId);
 
-      const dataToSave: Project = {
+      const dataToSave: Omit<Project, 'id'> & { id?: string } = {
         ...values,
-        id,
       };
+      
+      // Ensure the id is not overwritten if it exists
+      if (project) {
+        dataToSave.id = project.id;
+      } else {
+        dataToSave.id = formProjectId;
+      }
 
       setDocumentNonBlocking(projectRef, dataToSave, { merge: true });
 
@@ -199,16 +206,24 @@ function ProjectForm({
             </FormItem>
           )}
         />
-        <FormItem>
-          <FormLabel>Image du projet</FormLabel>
-          <FormControl>
-            <Button variant="outline" className="w-full" onClick={(e) => {e.preventDefault(); alert("Fonctionnalité d'import à venir !")}}>
-              <Upload className="mr-2 h-4 w-4" />
-              Importer une image
-            </Button>
-          </FormControl>
-          <FormMessage />
-        </FormItem>
+        <FormField
+          control={form.control}
+          name="imageUrl"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Image du projet</FormLabel>
+              <FormControl>
+                 <FirebaseStorageUploader
+                    storagePath={`projects/${formProjectId}/featured-image.jpg`}
+                    onUploadComplete={(url) => field.onChange(url)}
+                    currentFileUrl={field.value}
+                    label="Importer ou remplacer l'image"
+                  />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <FormField
           control={form.control}
           name="software"

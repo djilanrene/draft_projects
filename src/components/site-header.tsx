@@ -12,6 +12,10 @@ import { useDoc, useFirestore, useMemoFirebase, useUser } from "@/firebase";
 import { doc } from "firebase/firestore";
 import type { Profile } from "@/lib/types";
 
+type CvInfo = {
+  url: string;
+}
+
 export function SiteHeader() {
   const [isScrolled, setIsScrolled] = React.useState(false);
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
@@ -25,6 +29,13 @@ export function SiteHeader() {
   );
   const { data: profile } = useDoc<Profile>(profileRef);
 
+  const cvRef = useMemoFirebase(
+    () => (firestore ? doc(firestore, "cv", "main") : null),
+    [firestore]
+  );
+  const { data: cvData } = useDoc<CvInfo>(cvRef);
+
+
   React.useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
@@ -36,7 +47,7 @@ export function SiteHeader() {
   const navLinks = [
     { href: "/about", label: "À Propos" },
     { href: "/blog", label: "Blog" },
-    { href: "/cv.pdf", label: "Télécharger mon CV", download: true },
+    { href: cvData?.url || "#", label: "Télécharger mon CV", download: !!cvData?.url },
   ];
 
   return (
@@ -69,7 +80,7 @@ export function SiteHeader() {
                 className="flex items-center space-x-2"
               >
               <Avatar className="h-8 w-8">
-                {profile && <AvatarImage src={profile.profileImageUrl} alt="Profile" />}
+                {profile?.profileImageUrl && <AvatarImage src={profile.profileImageUrl} alt="Profile" />}
                 <AvatarFallback>
                   <UserCircle className="h-5 w-5" />
                 </AvatarFallback>
@@ -83,7 +94,8 @@ export function SiteHeader() {
                 rel={link.download ? "noopener noreferrer" : undefined}
                 className={cn(
                   "transition-colors hover:text-primary",
-                  pathname.startsWith(link.href) ? "text-primary font-semibold" : "text-foreground/60"
+                   !link.download && pathname.startsWith(link.href) ? "text-primary font-semibold" : "text-foreground/60",
+                   !cvData?.url && link.href === "#" ? "pointer-events-none opacity-50" : ""
                 )}
               >
                 {link.label}
@@ -120,7 +132,8 @@ export function SiteHeader() {
                       rel={link.download ? "noopener noreferrer" : undefined}
                       className={cn(
                         "text-lg transition-colors hover:text-primary",
-                        pathname.startsWith(link.href) ? "text-primary font-semibold" : "text-foreground/80"
+                        !link.download && pathname.startsWith(link.href) ? "text-primary font-semibold" : "text-foreground/80",
+                        !cvData?.url && link.href === "#" ? "pointer-events-none opacity-50" : ""
                       )}
                     >
                       {link.label}

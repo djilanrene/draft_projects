@@ -44,7 +44,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import type { Article } from "@/lib/types";
-import { Loader2, PlusCircle, MoreHorizontal, Upload } from "lucide-react";
+import { Loader2, PlusCircle, MoreHorizontal } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -66,12 +66,13 @@ import { setDocumentNonBlocking, deleteDocumentNonBlocking } from "@/firebase/no
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { FirebaseStorageUploader } from "@/components/FirebaseStorageUploader";
 
 const articleSchema = z.object({
   title: z.string().min(1, "Le titre est requis"),
   excerpt: z.string().min(1, "Un résumé est requis"),
   content: z.string().min(1, "Le contenu est requis"),
-  imageUrl: z.string().url("L'URL de l'image est invalide"),
+  imageUrl: z.string().url("L'URL de l'image est invalide").optional().or(z.literal('')),
   imageHint: z.string().optional(),
 });
 
@@ -87,6 +88,7 @@ function ArticleForm({
   const firestore = useFirestore();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = React.useState(false);
+  const formArticleId = React.useMemo(() => article?.id || doc(collection(firestore, "articles")).id, [article, firestore]);
 
   const form = useForm<ArticleFormValues>({
     resolver: zodResolver(articleSchema),
@@ -103,12 +105,11 @@ function ArticleForm({
     if (!firestore) return;
     setIsLoading(true);
     try {
-      const id = article?.id || doc(collection(firestore, "articles")).id;
-      const articleRef = doc(firestore, "articles", id);
+      const articleRef = doc(firestore, "articles", formArticleId);
 
       const dataToSave = {
         ...values,
-        id,
+        id: formArticleId,
         publishedDate: article?.publishedDate || serverTimestamp(), 
       };
 
@@ -173,16 +174,24 @@ function ArticleForm({
             </FormItem>
           )}
         />
-        <FormItem>
-          <FormLabel>Image de l'article</FormLabel>
-          <FormControl>
-             <Button variant="outline" className="w-full" onClick={(e) => {e.preventDefault(); alert("Fonctionnalité d'import à venir !")}}>
-                <Upload className="mr-2 h-4 w-4" />
-                Importer une image
-              </Button>
-          </FormControl>
-          <FormMessage />
-        </FormItem>
+        <FormField
+          control={form.control}
+          name="imageUrl"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Image de l'article</FormLabel>
+              <FormControl>
+                <FirebaseStorageUploader
+                  storagePath={`articles/${formArticleId}/featured-image.jpg`}
+                  onUploadComplete={(url) => field.onChange(url)}
+                  currentFileUrl={field.value}
+                  label="Importer ou remplacer l'image"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <DialogFooter>
           <DialogClose asChild>
             <Button type="button" variant="ghost">Annuler</Button>

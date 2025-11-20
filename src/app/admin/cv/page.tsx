@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -8,9 +9,40 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Upload } from "lucide-react";
+import { useDoc, useFirestore, useMemoFirebase, setDocumentNonBlocking } from "@/firebase";
+import { doc } from "firebase/firestore";
+import { FirebaseStorageUploader } from "@/components/FirebaseStorageUploader";
+import { useToast } from "@/hooks/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
+
+type CvInfo = {
+  url: string;
+  updatedAt: any;
+}
 
 export default function AdminCvPage() {
+  const firestore = useFirestore();
+  const { toast } = useToast();
+
+  const cvRef = useMemoFirebase(
+    () => (firestore ? doc(firestore, "cv", "main") : null),
+    [firestore]
+  );
+  const { data: cvData, isLoading } = useDoc<CvInfo>(cvRef);
+
+  const handleUploadComplete = (url: string) => {
+    if (!firestore) return;
+    const dataToSave = {
+      url: url,
+      updatedAt: new Date(),
+    };
+    setDocumentNonBlocking(cvRef, dataToSave, { merge: true });
+    toast({
+      title: "CV mis à jour !",
+      description: "Votre nouveau CV a été sauvegardé avec succès.",
+    });
+  };
+
   return (
     <div className="space-y-6">
       <header>
@@ -29,15 +61,18 @@ export default function AdminCvPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col items-start gap-4">
-             <Button onClick={() => alert("Fonctionnalité d'import à venir !")}>
-              <Upload className="mr-2 h-4 w-4" />
-              Importer un nouveau CV (PDF)
-            </Button>
-            {/* 
-              TODO: Add a preview or link to the current CV if it exists.
-              This would require Firebase Storage integration.
-            */}
+          <div className="max-w-md">
+            {isLoading ? (
+                <Skeleton className="h-10 w-full" />
+            ) : (
+              <FirebaseStorageUploader
+                storagePath="cv/cv.pdf"
+                onUploadComplete={handleUploadComplete}
+                currentFileUrl={cvData?.url}
+                acceptedFileTypes=".pdf"
+                label="Importer un nouveau CV (PDF)"
+              />
+            )}
           </div>
         </CardContent>
       </Card>

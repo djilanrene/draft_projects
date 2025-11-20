@@ -17,9 +17,9 @@ export type Project = {
 };
 
 export type Profile = {
-  profileImageUrl: string;
-  aboutImageUrl: string;
-  aboutImageHint: string;
+  profileImageUrl?: string;
+  aboutImageUrl?: string;
+  aboutImageHint?: string;
   aboutText1: string;
   aboutText2: string;
   aboutText3: string;
@@ -38,7 +38,7 @@ export type Article = {
   title: string;
   excerpt: string;
   content: string;
-  imageUrl: string;
-  imageHint: string;
+  imageUrl?: string;
+  imageHint?: string;
   publishedDate: Timestamp;
 };
