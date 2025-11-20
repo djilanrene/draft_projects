@@ -29,7 +29,7 @@ export default function Home() {
           Concepts & Expérimentations
         </h1>
         <p className="mx-auto mt-4 max-w-[700px] text-muted-foreground md:text-xl">
-          Explorez une collection de projets conceptuels et de travaux en cours.
+          Une collection de petits projets et d'expérimentations, nés ici et là.
         </p>
       </div>
 
