@@ -36,7 +36,57 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
+import { useToast } from '@/hooks/use-toast';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Eye, Loader2, MoreHorizontal, PlusCircle, Search } from 'lucide-react';
+import Link from 'next/link';
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
+import { deleteDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
+const articleSchema = z.object({
+  title: z.string().min(1, { message: 'Le titre est requis.' }),
+  excerpt: z
+    .string()
+    .max(160, { message: 'L\'extrait ne doit pas dépasser 160 caractères.' })
+    .optional(),
+  content: z.string().min(1, { message: 'Le contenu est requis.' }),
+  imageUrl: z.string().url({ message: 'URL invalide.' }).optional().or(z.literal('')),
+  imageHint: z.string().optional(),
+  tags: z.string().optional(),
   published: z.boolean().default(false),
 });
 

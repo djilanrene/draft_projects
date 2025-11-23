@@ -1,14 +1,55 @@
 'use client';
 
+'use client';
+
 import * as React from 'react';
 import {
   collection,
   doc,
+  serverTimestamp,
+  query,
   setDoc,
+} from 'firebase/firestore';
+import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+import { useFieldArray, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+  DialogClose,
+} from '@/components/ui/dialog';
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/hooks/use-toast';
+import {
+  Card,
+  CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Eye, Github, Globe, Loader2, MoreHorizontal, PlusCircle, Search, Trash2 } from 'lucide-react';
+import Link from 'next/link';
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
+import { Switch } from '@/components/ui/switch';
 import {
   Select,
   SelectContent,
@@ -16,11 +57,32 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import Link from 'next/link';
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
-import { Switch } from '@/components/ui/switch';
-import { Badge } from '@/components/ui/badge';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { deleteDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 
 const resourceSchema = z.object({
   label: z.string().min(1, 'Le label est requis.'),
@@ -42,9 +104,9 @@ const projectSchema = z.object({
     .optional()
     .or(z.literal('')),
   imageHint: z.string().optional(),
-  software: z
-    .string()
-    .transform((val) => (val ? val.split(',').map((s) => s.trim()) : [])),
+  software: z.string().transform((val) =>
+    val ? val.split(',').map((s) => s.trim()) : []
+  ).optional(),
   resources: z.array(resourceSchema).optional(),
   published: z.boolean().default(false),
 });

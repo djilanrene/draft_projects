@@ -1,7 +1,53 @@
+'use client';
+
+import * as React from 'react';
+import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
+import { useDoc, useFirestore } from '@/firebase';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { Button } from '@/components/ui/button';
+import {
   Card,
   CardContent,
   CardDescription,
+  CardHeader,
+  CardTitle,
 } from '@/components/ui/card';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/hooks/use-toast';
+import { Loader2 } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+
+const profileSchema = z.object({
+  profileImageUrl: z.string().url({ message: 'URL invalide.' }).optional().or(z.literal('')),
+  aboutImageUrl: z.string().url({ message: 'URL invalide.' }).optional().or(z.literal('')),
+  aboutImageHint: z.string().optional(),
+  aboutText1: z.string().optional(),
+  aboutText2: z.string().optional(),
+  aboutText3: z.string().optional(),
+});
+
+type ProfileFormValues = z.infer<typeof profileSchema>;
+
+function ProfileForm() {
+  const firestore = useFirestore();
+  const { toast } = useToast();
+  const [isSaving, setIsSaving] = React.useState(false);
+
+  const { data: profile, isLoading } = useDoc<ProfileFormValues>(
+    firestore ? doc(firestore, 'profile', 'main') : null
+  );
+
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
     values: {
@@ -70,7 +116,70 @@
     <CardContent>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <FormField
+            control={form.control}
+            name="profileImageUrl"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>URL de l'image de profil</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="https://..."
+                    {...field}
+                    onPaste={(e) => {
+                      const paste = e.clipboardData.getData('text');
+                      let url = paste.trim();
+                      if (url.includes('drive.google.com/file/d/')) {
+                        const match = url.match(/\/d\/([\w-]+)/);
+                        if (match)
+                          url = `https://drive.google.com/uc?export=view&id=${match[1]}`;
+                      }
+                      if (
+                        url.includes('github.com/') &&
+                        url.includes('/blob/')
+                      ) {
+                        url = url
+                          .replace('github.com/', 'raw.githubusercontent.com/')
+                          .replace('/blob/', '/');
+                      }
+                      if (url.match(/^https:\/\/imgur.com\//)) {
+                        url =
+                          url.replace('imgur.com/', 'i.imgur.com/') + '.png';
+                      }
+                      setTimeout(() => field.onChange(url), 0);
+                      e.preventDefault();
+                    }}
+                    onBlur={(e) => {
+                      let url = e.target.value.trim();
+                      if (url.includes('drive.google.com/file/d/')) {
+                        const match = url.match(/\/d\/([\w-]+)/);
+                        if (match)
+                          url = `https://drive.google.com/uc?export=view&id=${match[1]}`;
+                      }
+                      if (
+                        url.includes('github.com/') &&
+                        url.includes('/blob/')
+                      ) {
+                        url = url
+                          .replace('github.com/', 'raw.githubusercontent.com/')
+                          .replace('/blob/', '/');
+                      }
+                      if (url.match(/^https:\/\/imgur.com\//)) {
+                        url =
+                          url.replace('imgur.com/', 'i.imgur.com/') + '.png';
+                      }
+                      if (url !== e.target.value) field.onChange(url);
+                    }}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
+          <FormField
+            control={form.control}
+            name="aboutImageUrl"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>URL de l'image de la page "À propos"</FormLabel>
