@@ -50,7 +50,7 @@ function ProfileForm() {
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
-    values: {
+    defaultValues: {
       // Use `values` to pre-fill and react to data loading
       profileImageUrl: profile?.profileImageUrl || '',
       aboutImageUrl: profile?.aboutImageUrl || '',
