@@ -30,7 +30,12 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -76,12 +81,16 @@ const articleSchema = z.object({
   title: z.string().min(1, { message: 'Le titre est requis.' }),
   excerpt: z
     .string()
-    .max(160, { message: 'L\'extrait ne doit pas dépasser 160 caractères.' })
+    .max(160, { message: "L'extrait ne doit pas dépasser 160 caractères." })
     .optional(),
   content: z.string().min(1, { message: 'Le contenu est requis.' }),
-  imageUrl: z.string().url({ message: 'URL invalide.' }).optional().or(z.literal('')),
+  imageUrl: z
+    .string()
+    .url({ message: 'URL invalide.' })
+    .optional()
+    .or(z.literal('')),
   imageHint: z.string().optional(),
-  tags: z.string().optional(),
+  tags: z.string().optional().transform((val) => val ? val.split(',').map(tag => tag.trim()).filter(Boolean) : []),
   published: z.boolean().default(false),
 });
 
@@ -281,7 +290,18 @@ function ArticleForm({
             <FormItem>
               <FormLabel>Tags</FormLabel>
               <FormControl>
-                <Input placeholder="Design, Code, Next.js" {...field} />
+                <Input
+                  placeholder="Design, Code, Next.js"
+                  {...field}
+                  value={
+                    Array.isArray(field.value) ? field.value.join(', ') : field.value
+                  }
+                  onChange={(e) => {
+                    // This is handled by the zod transform when the form is submitted.
+                    // For the input component, we just pass the string value.
+                    field.onChange(e.target.value);
+                  }}
+                />
               </FormControl>
               <FormDescription>
                 Séparez les tags par des virgules.
@@ -361,7 +381,7 @@ function ArticlesList() {
         : null,
     [firestore]
   );
-  const { data: articles, isLoading } = useCollection<Article>(articlesQuery);
+  const { data: articles = [], isLoading } = useCollection<Article>(articlesQuery);
 
   const filteredArticles = React.useMemo(() => {
     if (!articles) return [];
@@ -436,82 +456,86 @@ function ArticlesList() {
                 </TableCell>
               </TableRow>
             )}
-            {filteredArticles?.map((article) => (
-              <TableRow key={article.id}>
-                <TableCell className="font-medium">{article.title}</TableCell>
-                <TableCell>
-                  <Badge variant={article.published ? 'default' : 'secondary'}>
-                    {article.published ? 'Publié' : 'Brouillon'}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  <div className="flex flex-wrap gap-1">
-                    {article.tags?.map((tag) => (
-                      <Badge key={tag} variant="secondary">
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-                </TableCell>
-                <TableCell>
-                  {article.publishedDate
-                    ? format(
-                        article.publishedDate.toDate(),
-                        "d MMMM yyyy 'à' HH:mm",
-                        { locale: fr }
-                      )
-                    : 'Date non disponible'}
-                </TableCell>
-                <TableCell className="text-right">
-                  <AlertDialog>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <span className="sr-only">Ouvrir le menu</span>
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <ArticleDialog article={article}>
-                          <DropdownMenuItem
-                            onSelect={(e) => e.preventDefault()}
-                          >
-                            Modifier
-                          </DropdownMenuItem>
-                        </ArticleDialog>
-                        <AlertDialogTrigger asChild>
-                          <DropdownMenuItem
-                            className="text-destructive"
-                            onSelect={(e) => e.preventDefault()}
+            {(Array.isArray(filteredArticles) ? filteredArticles : []).map(
+              (article) => (
+                <TableRow key={article.id}>
+                  <TableCell className="font-medium">{article.title}</TableCell>
+                  <TableCell>
+                    <Badge
+                      variant={article.published ? 'default' : 'secondary'}
+                    >
+                      {article.published ? 'Publié' : 'Brouillon'}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-wrap gap-1">
+                      {article.tags?.map((tag) => (
+                        <Badge key={tag} variant="secondary">
+                          {tag}
+                        </Badge>
+                      ))}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    {article.publishedDate
+                      ? format(
+                          article.publishedDate.toDate(),
+                          "d MMMM yyyy 'à' HH:mm",
+                          { locale: fr }
+                        )
+                      : 'Date non disponible'}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <AlertDialog>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            <span className="sr-only">Ouvrir le menu</span>
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <ArticleDialog article={article}>
+                            <DropdownMenuItem
+                              onSelect={(e) => e.preventDefault()}
+                            >
+                              Modifier
+                            </DropdownMenuItem>
+                          </ArticleDialog>
+                          <AlertDialogTrigger asChild>
+                            <DropdownMenuItem
+                              className="text-destructive"
+                              onSelect={(e) => e.preventDefault()}
+                            >
+                              Supprimer
+                            </DropdownMenuItem>
+                          </AlertDialogTrigger>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Cette action est irréversible. L'article "
+                            {article.title}" sera définitivement supprimé.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Annuler</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDelete(article.id)}
+                            className="bg-destructive hover:bg-destructive/90"
                           >
                             Supprimer
-                          </DropdownMenuItem>
-                        </AlertDialogTrigger>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Cette action est irréversible. L'article "
-                          {article.title}" sera définitivement supprimé.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Annuler</AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={() => handleDelete(article.id)}
-                          className="bg-destructive hover:bg-destructive/90"
-                        >
-                          Supprimer
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </TableCell>
-              </TableRow>
-            ))}
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </TableCell>
+                </TableRow>
+              )
+            )}
           </TableBody>
         </Table>
       </CardContent>
