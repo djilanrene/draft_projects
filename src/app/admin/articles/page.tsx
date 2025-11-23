@@ -31,53 +31,12 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { useToast } from '@/hooks/use-toast';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import type { Article } from '@/lib/types';
-import { Loader2, PlusCircle, MoreHorizontal, Eye, Search } from 'lucide-react';
-import {
-  DropdownMenu,
-              <FormControl>
-                {(() => {
-                  const { toast } = useToast();
-                  return (
-                    <Input
-                      placeholder="https://..."
-                      {...field}
-                      onPaste={e => {
-                        const paste = e.clipboardData.getData('text');
-                        let url = paste.trim();
-                        let formatted = false;
-                        if (url.includes('drive.google.com/file/d/')) {
-                          const match = url.match(/\/d\/([\w-]+)/);
-                          if (match) { url = `https://drive.google.com/uc?export=view&id=${match[1]}`; formatted = true; }
-                        }
-                        if (url.includes('github.com/') && url.includes('/blob/')) {
-                          url = url.replace('github.com/', 'raw.githubusercontent.com/').replace('/blob/', '/'); formatted = true;
-                        }
-                        if (url.match(/^https:\/\/imgur.com\//)) {
-                          url = url.replace('imgur.com/', 'i.imgur.com/') + '.png'; formatted = true;
-                        }
-                        if (formatted) toast({ title: 'Lien formaté', description: 'L’URL a été automatiquement adaptée pour l’aperçu.' });
-                        setTimeout(() => field.onChange(url), 0);
-                        e.preventDefault();
-                      }}
-                      onBlur={e => {
-                        let url = e.target.value.trim();
-                        let formatted = false;
-                        if (url.includes('drive.google.com/file/d/')) {
+  import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+  } from '@/components/ui/dropdown-menu';
                           const match = url.match(/\/d\/([\w-]+)/);
                           if (match) { url = `https://drive.google.com/uc?export=view&id=${match[1]}`; formatted = true; }
                         }

@@ -28,55 +28,10 @@ import {
                     }
                     if (formatted) toast({ title: 'Lien formaté', description: 'L’URL a été automatiquement adaptée pour l’aperçu.' });
                     setTimeout(() => field.onChange(url), 0);
-                    e.preventDefault();
-                  }}
-                  onBlur={e => {
-                    let url = e.target.value.trim();
-                    let formatted = false;
-                    if (url.includes('drive.google.com/file/d/')) {
-                      const match = url.match(/\/d\/([\w-]+)/);
-                      if (match) { url = `https://drive.google.com/uc?export=view&id=${match[1]}`; formatted = true; }
-                    }
-                    if (url.includes('github.com/') && url.includes('/blob/')) {
-                      url = url.replace('github.com/', 'raw.githubusercontent.com/').replace('/blob/', '/'); formatted = true;
-                    }
-                    if (url.match(/^https:\/\/imgur.com\//)) {
-                      url = url.replace('imgur.com/', 'i.imgur.com/') + '.png'; formatted = true;
-                    }
-                    if (formatted) toast({ title: 'Lien formaté', description: 'L’URL a été automatiquement adaptée pour l’aperçu.' });
-                    if (url !== e.target.value) field.onChange(url);
-                  }}
-                />
-              );
-            })()}
-          </FormControl>
-  Trash2,
-  Github,
-  Globe,
-  Eye,
-  Search,
-} from 'lucide-react';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import { deleteDocumentNonBlocking } from '@/firebase/non-blocking-updates';
-import {
-  Card,
-  CardContent,
+                      collection,
+                      doc,
+                      setDoc,
+                    } from 'firebase/firestore';
   CardDescription,
   CardHeader,
   CardTitle,

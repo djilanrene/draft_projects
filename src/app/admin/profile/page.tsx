@@ -1,52 +1,7 @@
-'use client';
-
-import * as React from 'react';
-import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
-import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
-import { Button } from '@/components/ui/button';
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { useToast } from '@/hooks/use-toast';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import type { Profile } from '@/lib/types';
-import { Loader2 } from 'lucide-react';
-import {
   Card,
   CardContent,
   CardDescription,
-            <FormControl>
-              {(() => {
-                const { toast } = useToast();
-                return (
-                  <Input
-                    placeholder="https://..."
-                    {...field}
-                    onPaste={e => {
-                      const paste = e.clipboardData.getData('text');
-                      let url = paste.trim();
-                      let formatted = false;
-                      if (url.includes('drive.google.com/file/d/')) {
-                        const match = url.match(/\/d\/([\w-]+)/);
-                        if (match) { url = `https://drive.google.com/uc?export=view&id=${match[1]}`; formatted = true; }
-                      }
-                      if (url.includes('github.com/') && url.includes('/blob/')) {
-                        url = url.replace('github.com/', 'raw.githubusercontent.com/').replace('/blob/', '/'); formatted = true;
-                      }
-                      if (url.match(/^https:\/\/imgur.com\//)) {
-                        url = url.replace('imgur.com/', 'i.imgur.com/') + '.png'; formatted = true;
-                      }
-                      if (formatted) toast({ title: 'Lien formaté', description: 'L’URL a été automatiquement adaptée pour l’aperçu.' });
+} from '@/components/ui/card';
                       setTimeout(() => field.onChange(url), 0);
                       e.preventDefault();
                     }}
