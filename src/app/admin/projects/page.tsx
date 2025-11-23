@@ -5,33 +5,6 @@ import {
   collection,
   doc,
   setDoc,
-          <FormControl>
-            {(() => {
-              const { toast } = useToast();
-              return (
-                <Input
-                  placeholder="https://..."
-                  {...field}
-                  onPaste={e => {
-                    const paste = e.clipboardData.getData('text');
-                    let url = paste.trim();
-                    let formatted = false;
-                    if (url.includes('drive.google.com/file/d/')) {
-                      const match = url.match(/\/d\/([\w-]+)/);
-                      if (match) { url = `https://drive.google.com/uc?export=view&id=${match[1]}`; formatted = true; }
-                    }
-                    if (url.includes('github.com/') && url.includes('/blob/')) {
-                      url = url.replace('github.com/', 'raw.githubusercontent.com/').replace('/blob/', '/'); formatted = true;
-                    }
-                    if (url.match(/^https:\/\/imgur.com\//)) {
-                      url = url.replace('imgur.com/', 'i.imgur.com/') + '.png'; formatted = true;
-                    }
-                    if (formatted) toast({ title: 'Lien formaté', description: 'L’URL a été automatiquement adaptée pour l’aperçu.' });
-                    setTimeout(() => field.onChange(url), 0);
-                      collection,
-                      doc,
-                      setDoc,
-                    } from 'firebase/firestore';
   CardDescription,
   CardHeader,
   CardTitle,

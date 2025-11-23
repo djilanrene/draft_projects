@@ -31,12 +31,11 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import {
-  import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-  } from '@/components/ui/dropdown-menu';
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
                           const match = url.match(/\/d\/([\w-]+)/);
                           if (match) { url = `https://drive.google.com/uc?export=view&id=${match[1]}`; formatted = true; }
                         }
