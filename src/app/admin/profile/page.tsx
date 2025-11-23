@@ -50,23 +50,17 @@ function ProfileForm() {
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
-    defaultValues: {
-      // Use `values` to pre-fill and react to data loading
-      profileImageUrl: profile?.profileImageUrl || '',
-      aboutImageUrl: profile?.aboutImageUrl || '',
-      aboutImageHint: profile?.aboutImageHint || '',
-      aboutText1: profile?.aboutText1 || '',
-      aboutText2: profile?.aboutText2 || '',
-      aboutText3: profile?.aboutText3 || '',
+    defaultValues: profile || {
+      profileImageUrl: '',
+      aboutImageUrl: '',
+      aboutImageHint: '',
+      aboutText1: '',
+      aboutText2: '',
+      aboutText3: '',
     },
   });
 
-  React.useEffect(() => {
-    // Reset the form when the profile data is loaded from Firestore
-    if (profile) {
-      form.reset(profile);
-    }
-  }, [profile, form]);
+
 
   const onSubmit = async (values: ProfileFormValues) => {
     if (!firestore) return;

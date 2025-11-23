@@ -59,7 +59,7 @@ export default function ArticlePage({ params }: { params: { id: string } }) {
         <MarkdownRenderer content={article.content} />
       </div>
 
-      {article.tags && article.tags.length > 0 && (
+      {article.tags && Array.isArray(article.tags) && article.tags.length > 0 && (
         <footer className="mt-12">
           <Separator />
           <div className="pt-8 flex items-center gap-4">
