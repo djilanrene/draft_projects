@@ -70,44 +70,7 @@
     <CardContent>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          <FormField
-            control={form.control}
-                    onPaste={(e) => {
-                      const paste = e.clipboardData.getData('text');
-                      let url = paste.trim();
-                      let formatted = false; // Initialize formatted flag
-                      if (url.includes('drive.google.com/file/d/')) {
-                        const match = url.match(/\/d\/([\w-]+)/);
-                        if (match) {
-                          url = `https://drive.google.com/uc?export=view&id=${match[1]}`;
-                          formatted = true;
-                        }
-                      }
-                      if (
-                        url.includes('github.com/') &&
-                        url.includes('/blob/')
-                      ) {
-                        url = url
-                          .replace('github.com/', 'raw.githubusercontent.com/')
-                          .replace('/blob/', '/');
-                        formatted = true;
-                      }
-                      if (url.match(/^https:\/\/imgur.com\//)) {
-                        url =
-                          url.replace('imgur.com/', 'i.imgur.com/') + '.png';
-                        formatted = true;
-                      }
-                      if (formatted) {
-                        toast({ title: 'Lien formaté', description: 'L’URL a été automatiquement adaptée pour l’aperçu.' });
-                      }
-                      setTimeout(() => field.onChange(url), 0);
-                      e.preventDefault();
-                    }}
 
-
-          <FormField
-            control={form.control}
-            name="aboutImageUrl"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>URL de l'image de la page "À propos"</FormLabel>

@@ -36,22 +36,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-                          const match = url.match(/\/d\/([\w-]+)/);
-                          if (match) { url = `https://drive.google.com/uc?export=view&id=${match[1]}`; formatted = true; }
-                        }
-                        if (url.includes('github.com/') && url.includes('/blob/')) {
-                          url = url.replace('github.com/', 'raw.githubusercontent.com/').replace('/blob/', '/'); formatted = true;
-                        }
-                        if (url.match(/^https:\/\/imgur.com\//)) {
-                          url = url.replace('imgur.com/', 'i.imgur.com/') + '.png'; formatted = true;
-                        }
-                        if (formatted) toast({ title: 'Lien formaté', description: 'L’URL a été automatiquement adaptée pour l’aperçu.' });
-                        if (url !== e.target.value) field.onChange(url);
-                      }}
-                    />
-                  );
-                })()}
-              </FormControl>
+
   published: z.boolean().default(false),
 });
 
