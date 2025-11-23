@@ -1,8 +1,15 @@
-import Image from "next/image";
-import Link from "next/link";
-import type { Project } from "@/lib/types";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import Image from 'next/image';
+import Link from 'next/link';
+import type { Project } from '@/lib/types';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 interface ProjectCardProps {
   project: Project;
@@ -11,7 +18,7 @@ interface ProjectCardProps {
 export function ProjectCard({ project }: ProjectCardProps) {
   return (
     <Link href={`/projects/${project.id}`}>
-      <Card className="flex h-full flex-col overflow-hidden transition-transform duration-300 hover:scale-105 hover:shadow-xl">
+      <Card className="flex h-full flex-col overflow-hidden opacity-0 animate-slide-fade-in-fast transition-transform duration-300 hover:scale-105 hover:shadow-xl">
         <CardHeader>
           <CardTitle>{project.title}</CardTitle>
           <CardDescription>{project.excerpt}</CardDescription>
@@ -31,7 +38,9 @@ export function ProjectCard({ project }: ProjectCardProps) {
         <CardFooter className="flex-wrap gap-2 pt-4">
           <Badge variant="secondary">{project.category}</Badge>
           {project.software.map((s) => (
-            <Badge key={s} variant="outline">{s}</Badge>
+            <Badge key={s} variant="outline">
+              {s}
+            </Badge>
           ))}
         </CardFooter>
       </Card>

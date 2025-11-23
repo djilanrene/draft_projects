@@ -1,3 +1,17 @@
+## 👨‍💻 Utilisation du Panneau d'Administration
+
+Pour accéder au backoffice, naviguez vers `/admin/login` et connectez-vous avec les identifiants d'administrateur configurés dans votre projet Firebase Authentication.
+
+### Formatage automatique des liens d'images
+
+Lorsque vous collez une URL d'image (Google Drive, GitHub, Imgur, Unsplash...) dans les formulaires du backoffice, le champ reformate automatiquement le lien pour qu'il soit compatible avec l'aperçu. Une notification s'affiche pour confirmer la correction du lien.
+
+### Animations des cartes
+
+Les cartes projets et articles apparaissent avec une animation glissé-fondu rapide lors des recherches ou du chargement, et zooment légèrement au survol.
+
+Pour un guide complet sur l'utilisation du panneau d'administration, consultez le [Guide du Backoffice](./docs/ADMIN_PANEL_GUIDE.md).
+
 # Portfolio & Blog Next.js avec Backoffice Firebase
 
 Ce projet est un portfolio moderne et complet, conçu pour présenter des projets et partager des articles de blog. Il est développé avec Next.js et intègre un puissant backoffice en temps réel construit sur Firebase, permettant une gestion de contenu simple et instantanée.
@@ -7,11 +21,11 @@ Ce projet est un portfolio moderne et complet, conçu pour présenter des projet
 - **Gestion de Projets** : Présentez vos réalisations avec des descriptions détaillées, des galeries d'images, des catégories et des liens vers les technologies utilisées.
 - **Moteur de Blog Intégré** : Rédigez et publiez des articles en utilisant la syntaxe Markdown pour un formatage riche.
 - **Panneau d'Administration Complet** : Un backoffice sécurisé pour gérer l'intégralité du contenu du site :
-    - **Projets** : Ajouter, modifier, publier/dépublier et supprimer des projets.
-    - **Articles** : Gérer le cycle de vie complet de vos publications de blog.
-    - **Profil** : Mettre à jour votre biographie et vos photos de profil.
-    - **Réseaux Sociaux** : Gérer les icônes et les liens dans le pied de page.
-    - **CV** : Mettre à jour le lien de téléchargement de votre CV.
+  - **Projets** : Ajouter, modifier, publier/dépublier et supprimer des projets.
+  - **Articles** : Gérer le cycle de vie complet de vos publications de blog.
+  - **Profil** : Mettre à jour votre biographie et vos photos de profil.
+  - **Réseaux Sociaux** : Gérer les icônes et les liens dans le pied de page.
+  - **CV** : Mettre à jour le lien de téléchargement de votre CV.
 - **Mises à jour en Temps Réel** : Grâce à Firebase Firestore, les modifications apportées dans le backoffice sont visibles instantanément sur le site public sans avoir à redéployer.
 - **Recherche et Filtrage** : Des fonctionnalités de recherche dynamiques sur les pages des projets et du blog.
 - **Thème Sombre et Clair** : Le site propose une expérience visuelle adaptable avec un mode sombre et un mode clair.
@@ -33,6 +47,7 @@ Pour une description plus détaillée de l'organisation du code, consultez le [G
 Ce projet est configuré pour fonctionner dans un environnement de développement cloud. Voici les étapes pour le lancer localement :
 
 1.  **Installer les dépendances** :
+
     ```bash
     npm install
     ```
@@ -41,6 +56,7 @@ Ce projet est configuré pour fonctionner dans un environnement de développemen
     Le projet nécessite une connexion à un projet Firebase pour fonctionner. Suivez le [Guide de Configuration Firebase](./docs/FIREBASE_SETUP.md) pour connecter votre propre projet.
 
 3.  **Lancer le serveur de développement** :
+
     ```bash
     npm run dev
     ```
@@ -50,8 +66,8 @@ Ce projet est configuré pour fonctionner dans un environnement de développemen
 ## 🗂️ Structure du Projet
 
 - `src/app/` : Cœur de l'application Next.js avec l'App Router.
-    - `(admin)/` : Contient toutes les pages du backoffice (protégées par authentification).
-    - `(public)/` : Contient les pages publiques (accueil, blog, projets, etc.).
+  - `(admin)/` : Contient toutes les pages du backoffice (protégées par authentification).
+  - `(public)/` : Contient les pages publiques (accueil, blog, projets, etc.).
 - `src/components/` : Composants React réutilisables, y compris les composants `ui` de ShadCN.
 - `src/firebase/` : Toute la configuration et les hooks pour l'interaction avec Firebase.
 - `src/lib/` : Utilitaires, définitions de types TypeScript et autres logiques partagées.

@@ -25,7 +25,7 @@
     --ring: 222.2 84% 4.9%;
     --radius: 0.5rem;
   }
- 
+
   .dark {
     --background: 224 71.4% 4.1%;
     --foreground: 210 20% 98%;
@@ -55,5 +55,20 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+  /* Animation glissé-fondu depuis le bas */
+  @keyframes slide-fade-in-fast {
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .animate-slide-fade-in-fast {
+    animation: slide-fade-in-fast 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 1 !important;
   }
 }

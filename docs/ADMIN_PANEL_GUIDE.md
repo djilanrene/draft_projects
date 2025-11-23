@@ -1,3 +1,45 @@
+### Formulaire de Projet
+
+- **Publier** : Un interrupteur pour rendre le projet visible ou non sur le site public. Très utile pour préparer un projet en brouillon.
+- **Titre** : Le nom de votre projet.
+- **Résumé (Excerpt)** : Une phrase courte qui apparaît sur la carte du projet.
+- **Contenu (Markdown)** : La description complète de votre projet. Vous pouvez utiliser la syntaxe Markdown pour le formatage (titres, listes, gras, etc.).
+- **Catégorie** : La catégorie principale du projet (ex: "Développement Web", "Design UI/UX").
+- **URL de l'image** : Le lien vers l'image principale de votre projet.
+  - **Astuce :** Si vous collez une URL d'image provenant de Google Drive, GitHub, Imgur ou Unsplash, le champ reformate automatiquement le lien pour qu'il soit compatible avec l'aperçu. Une notification s'affiche pour confirmer la correction.
+- **Logiciels / Technologies** : Une liste de technologies utilisées, séparées par des virgules (ex: "React, Figma, Next.js").
+- **Liens de ressources** : Ajoutez des liens externes, comme un lien vers le site en ligne (`website`) ou le dépôt de code (`github`).
+
+## 2. Gestion des Articles
+
+### Formulaire d'Article
+
+- **Publier** : Rendez l'article visible publiquement sur la page `/blog`.
+- **Titre, Résumé, Contenu** : Similaires au formulaire de projet. Le contenu est également en Markdown.
+- **URL de l'image** : L'image de couverture de votre article.
+  - **Astuce :** Le champ reformate automatiquement les liens d'image collés (Drive, GitHub, Imgur, Unsplash) pour l'aperçu, avec notification de confirmation.
+- **Tags** : Mots-clés pour votre article, séparés par des virgules.
+
+## 3. Gestion du Profil
+
+Cette page contrôle les informations affichées sur la page "À Propos" et dans l'en-tête du site.
+
+- **URL de la photo de profil** : L'image qui apparaît dans l'avatar de l'en-tête.
+  - **Astuce :** Le champ reformate automatiquement les liens d'image collés (Drive, GitHub, Imgur, Unsplash) pour l'aperçu, avec notification de confirmation.
+- **URL de l'image "À propos"** : La grande image sur la page "À propos de moi".
+  - **Astuce :** Idem, le formatage et la notification sont automatiques.
+- **Biographie (Paragraphes 1, 2, 3)** : Le texte qui constitue votre biographie.
+
+Toutes les modifications sont enregistrées lorsque vous cliquez sur "Sauvegarder les modifications".
+
+## Animations et notifications
+
+Les cartes projets et articles apparaissent avec une animation glissé-fondu rapide lors des recherches ou du chargement, et zooment légèrement au survol.
+
+À chaque formatage automatique d'un lien d'image, une notification s'affiche pour confirmer la correction.
+
+Toutes les modifications sont sauvegardées en temps réel. Vous pouvez ouvrir votre site public dans un autre onglet pour voir les changements s'appliquer instantanément.
+
 # Guide d'Utilisation du Panneau d'Administration
 
 Ce guide vous explique comment utiliser le backoffice de votre portfolio pour gérer tout le contenu de votre site.

@@ -1,57 +1,67 @@
-"use client";
+'use client';
 
-import * as React from "react";
+import * as React from 'react';
 import {
   collection,
   doc,
   setDoc,
-  serverTimestamp,
-  query,
-  orderBy
-} from "firebase/firestore";
-import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogFooter,
-  DialogClose,
-} from "@/components/ui/dialog";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
-import { useForm, useFieldArray } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import type { Project } from "@/lib/types";
-import { Loader2, PlusCircle, MoreHorizontal, Trash2, Github, Globe, Eye, Search } from "lucide-react";
+          <FormControl>
+            {(() => {
+              const { toast } = useToast();
+              return (
+                <Input
+                  placeholder="https://..."
+                  {...field}
+                  onPaste={e => {
+                    const paste = e.clipboardData.getData('text');
+                    let url = paste.trim();
+                    let formatted = false;
+                    if (url.includes('drive.google.com/file/d/')) {
+                      const match = url.match(/\/d\/([\w-]+)/);
+                      if (match) { url = `https://drive.google.com/uc?export=view&id=${match[1]}`; formatted = true; }
+                    }
+                    if (url.includes('github.com/') && url.includes('/blob/')) {
+                      url = url.replace('github.com/', 'raw.githubusercontent.com/').replace('/blob/', '/'); formatted = true;
+                    }
+                    if (url.match(/^https:\/\/imgur.com\//)) {
+                      url = url.replace('imgur.com/', 'i.imgur.com/') + '.png'; formatted = true;
+                    }
+                    if (formatted) toast({ title: 'Lien formaté', description: 'L’URL a été automatiquement adaptée pour l’aperçu.' });
+                    setTimeout(() => field.onChange(url), 0);
+                    e.preventDefault();
+                  }}
+                  onBlur={e => {
+                    let url = e.target.value.trim();
+                    let formatted = false;
+                    if (url.includes('drive.google.com/file/d/')) {
+                      const match = url.match(/\/d\/([\w-]+)/);
+                      if (match) { url = `https://drive.google.com/uc?export=view&id=${match[1]}`; formatted = true; }
+                    }
+                    if (url.includes('github.com/') && url.includes('/blob/')) {
+                      url = url.replace('github.com/', 'raw.githubusercontent.com/').replace('/blob/', '/'); formatted = true;
+                    }
+                    if (url.match(/^https:\/\/imgur.com\//)) {
+                      url = url.replace('imgur.com/', 'i.imgur.com/') + '.png'; formatted = true;
+                    }
+                    if (formatted) toast({ title: 'Lien formaté', description: 'L’URL a été automatiquement adaptée pour l’aperçu.' });
+                    if (url !== e.target.value) field.onChange(url);
+                  }}
+                />
+              );
+            })()}
+          </FormControl>
+  Trash2,
+  Github,
+  Globe,
+  Eye,
+  Search,
+} from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from '@/components/ui/dropdown-menu';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -62,30 +72,51 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { deleteDocumentNonBlocking } from "@/firebase/non-blocking-updates";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import Link from "next/link";
+} from '@/components/ui/alert-dialog';
+import { deleteDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import Link from 'next/link';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { Switch } from "@/components/ui/switch";
-import { Badge } from "@/components/ui/badge";
+import { Switch } from '@/components/ui/switch';
+import { Badge } from '@/components/ui/badge';
 
 const resourceSchema = z.object({
-  label: z.string().min(1, "Le label est requis."),
+  label: z.string().min(1, 'Le label est requis.'),
   url: z.string().url("L'URL est invalide."),
-  type: z.enum(["website", "github"]),
+  type: z.enum(['website', 'github']),
 });
 
 const projectSchema = z.object({
-  title: z.string().min(1, "Le titre est requis."),
-  excerpt: z.string().min(1, "Le résumé est requis.").max(160, "Le résumé ne doit pas dépasser 160 caractères."),
-  content: z.string().min(1, "Le contenu est requis."),
-  category: z.string().min(1, "La catégorie est requise."),
-  imageUrl: z.string().url("L'URL de l'image est invalide.").optional().or(z.literal('')),
+  title: z.string().min(1, 'Le titre est requis.'),
+  excerpt: z
+    .string()
+    .min(1, 'Le résumé est requis.')
+    .max(160, 'Le résumé ne doit pas dépasser 160 caractères.'),
+  content: z.string().min(1, 'Le contenu est requis.'),
+  category: z.string().min(1, 'La catégorie est requise.'),
+  imageUrl: z
+    .string()
+    .url("L'URL de l'image est invalide.")
+    .optional()
+    .or(z.literal('')),
   imageHint: z.string().optional(),
-  software: z.string().transform(val => val ? val.split(',').map(s => s.trim()) : []),
+  software: z
+    .string()
+    .transform((val) => (val ? val.split(',').map((s) => s.trim()) : [])),
   resources: z.array(resourceSchema).optional(),
   published: z.boolean().default(false),
 });
@@ -102,33 +133,36 @@ function ProjectForm({
   const firestore = useFirestore();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = React.useState(false);
-  const formProjectId = React.useMemo(() => project?.id || doc(collection(firestore, "projects")).id, [project, firestore]);
+  const formProjectId = React.useMemo(
+    () => project?.id || doc(collection(firestore, 'projects')).id,
+    [project, firestore]
+  );
 
   const form = useForm<ProjectFormValues>({
     resolver: zodResolver(projectSchema),
     defaultValues: {
-      title: project?.title || "",
-      excerpt: project?.excerpt || "",
-      content: project?.content || "",
-      category: project?.category || "",
-      imageUrl: project?.imageUrl || "",
-      imageHint: project?.imageHint || "",
-      software: project?.software?.join(", ") || "",
+      title: project?.title || '',
+      excerpt: project?.excerpt || '',
+      content: project?.content || '',
+      category: project?.category || '',
+      imageUrl: project?.imageUrl || '',
+      imageHint: project?.imageHint || '',
+      software: project?.software?.join(', ') || '',
       resources: project?.resources || [],
       published: project?.published || false,
     },
   });
-  
+
   const { fields, append, remove } = useFieldArray({
     control: form.control,
-    name: "resources",
+    name: 'resources',
   });
 
   const onSubmit = async (values: ProjectFormValues) => {
     if (!firestore) return;
     setIsLoading(true);
     try {
-      const projectRef = doc(firestore, "projects", formProjectId);
+      const projectRef = doc(firestore, 'projects', formProjectId);
 
       const dataToSave = {
         ...values,
@@ -139,15 +173,15 @@ function ProjectForm({
       await setDoc(projectRef, dataToSave, { merge: true });
 
       toast({
-        title: project ? "Projet mis à jour !" : "Projet créé !",
+        title: project ? 'Projet mis à jour !' : 'Projet créé !',
         description: `Le projet "${values.title}" a été sauvegardé.`,
       });
       onFinished();
     } catch (error: any) {
       console.error(error);
       toast({
-        variant: "destructive",
-        title: "Oh non ! Une erreur est survenue.",
+        variant: 'destructive',
+        title: 'Oh non ! Une erreur est survenue.',
         description: error.message,
       });
     } finally {
@@ -198,23 +232,28 @@ function ProjectForm({
             <FormItem>
               <FormLabel>Résumé (Excerpt)</FormLabel>
               <FormControl>
-                <Textarea placeholder="Description courte pour la carte du projet." {...field} />
+                <Textarea
+                  placeholder="Description courte pour la carte du projet."
+                  {...field}
+                />
               </FormControl>
-               <FormDescription>
-                Maximum 160 caractères.
-              </FormDescription>
+              <FormDescription>Maximum 160 caractères.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
-         <FormField
+        <FormField
           control={form.control}
           name="content"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Contenu (Markdown)</FormLabel>
               <FormControl>
-                <Textarea placeholder="Contenu détaillé du projet au format Markdown." rows={10} {...field} />
+                <Textarea
+                  placeholder="Contenu détaillé du projet au format Markdown."
+                  rows={10}
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -240,7 +279,54 @@ function ProjectForm({
             <FormItem>
               <FormLabel>URL de l'image du projet</FormLabel>
               <FormControl>
-                <Input placeholder="https://..." {...field} />
+                <Input
+                  placeholder="https://..."
+                  {...field}
+                  onPaste={(e) => {
+                    const paste = e.clipboardData.getData('text');
+                    let url = paste.trim();
+                    // Google Drive
+                    if (url.includes('drive.google.com/file/d/')) {
+                      const match = url.match(/\/d\/([\w-]+)/);
+                      if (match)
+                        url = `https://drive.google.com/uc?export=view&id=${match[1]}`;
+                    }
+                    // GitHub
+                    if (url.includes('github.com/') && url.includes('/blob/')) {
+                      url = url
+                        .replace('github.com/', 'raw.githubusercontent.com/')
+                        .replace('/blob/', '/');
+                    }
+                    // Imgur
+                    if (url.match(/^https:\/\/imgur.com\//)) {
+                      url = url.replace('imgur.com/', 'i.imgur.com/') + '.png';
+                    }
+                    // Unsplash (rien à faire, direct)
+                    setTimeout(() => field.onChange(url), 0);
+                    e.preventDefault();
+                  }}
+                  onBlur={(e) => {
+                    let url = e.target.value.trim();
+                    // Google Drive
+                    if (url.includes('drive.google.com/file/d/')) {
+                      const match = url.match(/\/d\/([\w-]+)/);
+                      if (match)
+                        url = `https://drive.google.com/uc?export=view&id=${match[1]}`;
+                    }
+                    // GitHub
+                    if (url.includes('github.com/') && url.includes('/blob/')) {
+                      url = url
+                        .replace('github.com/', 'raw.githubusercontent.com/')
+                        .replace('/blob/', '/');
+                    }
+                    // Imgur
+                    if (url.match(/^https:\/\/imgur.com\//)) {
+                      url = url.replace('imgur.com/', 'i.imgur.com/') + '.png';
+                    }
+                    // Unsplash (rien à faire, direct)
+                    if (url !== e.target.value) field.onChange(url);
+                  }}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -253,66 +339,91 @@ function ProjectForm({
             <FormItem>
               <FormLabel>Logiciels / Technologies</FormLabel>
               <FormControl>
-                <Input placeholder="React, Figma, Next.js (séparés par des virgules)" {...field} />
+                <Input
+                  placeholder="React, Figma, Next.js (séparés par des virgules)"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        
+
         <div>
           <FormLabel>Liens de ressources</FormLabel>
           <div className="space-y-4 mt-2">
             {fields.map((field, index) => (
               <Card key={field.id} className="p-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                   <FormField
-                      control={form.control}
-                      name={`resources.${index}.label`}
-                      render={({ field }) => (
-                        <FormItem>
-                           <FormLabel className="text-xs">Label</FormLabel>
-                          <FormControl><Input placeholder="Visiter le site" {...field} /></FormControl>
-                        </FormItem>
-                      )}
-                    />
-                     <FormField
-                      control={form.control}
-                      name={`resources.${index}.url`}
-                      render={({ field }) => (
-                        <FormItem>
-                           <FormLabel className="text-xs">URL</FormLabel>
-                           <FormControl><Input placeholder="https://..." {...field} /></FormControl>
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name={`resources.${index}.type`}
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className="text-xs">Type</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <FormControl>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Choisir un type" />
-                                        </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                        <SelectItem value="website"><Globe className="mr-2 h-4 w-4 inline"/> Site Web</SelectItem>
-                                        <SelectItem value="github"><Github className="mr-2 h-4 w-4 inline"/> GitHub</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </FormItem>
-                        )}
-                    />
+                  <FormField
+                    control={form.control}
+                    name={`resources.${index}.label`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs">Label</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Visiter le site" {...field} />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name={`resources.${index}.url`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs">URL</FormLabel>
+                        <FormControl>
+                          <Input placeholder="https://..." {...field} />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name={`resources.${index}.type`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs">Type</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Choisir un type" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="website">
+                              <Globe className="mr-2 h-4 w-4 inline" /> Site Web
+                            </SelectItem>
+                            <SelectItem value="github">
+                              <Github className="mr-2 h-4 w-4 inline" /> GitHub
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
                 </div>
-                 <Button type="button" variant="ghost" size="sm" className="mt-2 text-destructive" onClick={() => remove(index)}>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="mt-2 text-destructive"
+                  onClick={() => remove(index)}
+                >
                   <Trash2 className="mr-2 h-4 w-4" /> Supprimer ce lien
                 </Button>
               </Card>
             ))}
-            <Button type="button" variant="outline" size="sm" onClick={() => append({ label: '', url: '', type: 'website' })}>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => append({ label: '', url: '', type: 'website' })}
+            >
               <PlusCircle className="mr-2 h-4 w-4" />
               Ajouter un lien
             </Button>
@@ -332,11 +443,13 @@ function ProjectForm({
           </div>
           <div className="flex gap-2">
             <DialogClose asChild>
-              <Button type="button" variant="ghost">Annuler</Button>
+              <Button type="button" variant="ghost">
+                Annuler
+              </Button>
             </DialogClose>
             <Button type="submit" disabled={isLoading}>
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {project ? "Sauvegarder les modifications" : "Créer le projet"}
+              {project ? 'Sauvegarder les modifications' : 'Créer le projet'}
             </Button>
           </div>
         </DialogFooter>
@@ -345,18 +458,26 @@ function ProjectForm({
   );
 }
 
-function ProjectDialog({ project, children }: { project?: Project, children: React.ReactNode }) {
+function ProjectDialog({
+  project,
+  children,
+}: {
+  project?: Project;
+  children: React.ReactNode;
+}) {
   const [open, setOpen] = React.useState(false);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{project ? "Modifier le projet" : "Nouveau Projet"}</DialogTitle>
+          <DialogTitle>
+            {project ? 'Modifier le projet' : 'Nouveau Projet'}
+          </DialogTitle>
           <DialogDescription>
             {project
-              ? "Modifiez les informations de votre projet."
-              : "Ajoutez un nouveau projet à votre portfolio."}
+              ? 'Modifiez les informations de votre projet.'
+              : 'Ajoutez un nouveau projet à votre portfolio.'}
           </DialogDescription>
         </DialogHeader>
         <ProjectForm project={project} onFinished={() => setOpen(false)} />
@@ -365,34 +486,34 @@ function ProjectDialog({ project, children }: { project?: Project, children: Rea
   );
 }
 
-
 function ProjectsList() {
   const firestore = useFirestore();
   const { toast } = useToast();
-  const [searchTerm, setSearchTerm] = React.useState("");
+  const [searchTerm, setSearchTerm] = React.useState('');
 
   const projectsQuery = useMemoFirebase(
-    () => (firestore ? query(collection(firestore, "projects")) : null),
+    () => (firestore ? query(collection(firestore, 'projects')) : null),
     [firestore]
   );
   const { data: projects, isLoading } = useCollection<Project>(projectsQuery);
-  
+
   const filteredProjects = React.useMemo(() => {
     if (!projects) return [];
     if (!searchTerm) return projects;
-    return projects.filter(project => 
-      project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      project.category.toLowerCase().includes(searchTerm.toLowerCase())
+    return projects.filter(
+      (project) =>
+        project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        project.category.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [projects, searchTerm]);
-  
+
   const handleDelete = (projectId: string) => {
     if (!firestore) return;
-    const projectRef = doc(firestore, "projects", projectId);
+    const projectRef = doc(firestore, 'projects', projectId);
     deleteDocumentNonBlocking(projectRef);
     toast({
-      title: "Projet supprimé",
-      description: "Le projet a été supprimé avec succès.",
+      title: 'Projet supprimé',
+      description: 'Le projet a été supprimé avec succès.',
     });
   };
 
@@ -401,7 +522,9 @@ function ProjectsList() {
       <CardHeader className="md:flex-row md:items-center md:justify-between">
         <div>
           <CardTitle>Vos Projets</CardTitle>
-          <CardDescription>La liste de tous les projets de votre portfolio.</CardDescription>
+          <CardDescription>
+            La liste de tous les projets de votre portfolio.
+          </CardDescription>
         </div>
         <div className="relative mt-4 md:mt-0 w-full max-w-md">
           <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
@@ -435,8 +558,13 @@ function ProjectsList() {
             )}
             {!isLoading && filteredProjects?.length === 0 && (
               <TableRow>
-                <TableCell colSpan={5} className="text-center text-muted-foreground">
-                  {searchTerm ? "Aucun projet ne correspond à votre recherche." : "Aucun projet trouvé."}
+                <TableCell
+                  colSpan={5}
+                  className="text-center text-muted-foreground"
+                >
+                  {searchTerm
+                    ? 'Aucun projet ne correspond à votre recherche.'
+                    : 'Aucun projet trouvé.'}
                 </TableCell>
               </TableRow>
             )}
@@ -444,15 +572,17 @@ function ProjectsList() {
               <TableRow key={project.id}>
                 <TableCell className="font-medium">{project.title}</TableCell>
                 <TableCell>
-                  <Badge variant={project.published ? "default" : "secondary"}>
-                    {project.published ? "Publié" : "Brouillon"}
+                  <Badge variant={project.published ? 'default' : 'secondary'}>
+                    {project.published ? 'Publié' : 'Brouillon'}
                   </Badge>
                 </TableCell>
                 <TableCell>{project.category}</TableCell>
                 <TableCell>
-                  {project.createdAt 
-                    ? format(project.createdAt.toDate(), "d MMMM yyyy", { locale: fr })
-                    : "Date non disponible"}
+                  {project.createdAt
+                    ? format(project.createdAt.toDate(), 'd MMMM yyyy', {
+                        locale: fr,
+                      })
+                    : 'Date non disponible'}
                 </TableCell>
                 <TableCell className="text-right">
                   <AlertDialog>
@@ -465,33 +595,42 @@ function ProjectsList() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <ProjectDialog project={project}>
-                           <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                              Modifier
-                           </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onSelect={(e) => e.preventDefault()}
+                          >
+                            Modifier
+                          </DropdownMenuItem>
                         </ProjectDialog>
                         <AlertDialogTrigger asChild>
-                          <DropdownMenuItem className="text-destructive" onSelect={(e) => e.preventDefault()}>
+                          <DropdownMenuItem
+                            className="text-destructive"
+                            onSelect={(e) => e.preventDefault()}
+                          >
                             Supprimer
                           </DropdownMenuItem>
                         </AlertDialogTrigger>
                       </DropdownMenuContent>
                     </DropdownMenu>
 
-                     <AlertDialogContent>
+                    <AlertDialogContent>
                       <AlertDialogHeader>
                         <AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle>
                         <AlertDialogDescription>
-                          Cette action est irréversible. Le projet "{project.title}" sera définitivement supprimé.
+                          Cette action est irréversible. Le projet "
+                          {project.title}" sera définitivement supprimé.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>Annuler</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => handleDelete(project.id)} className="bg-destructive hover:bg-destructive/90">
+                        <AlertDialogAction
+                          onClick={() => handleDelete(project.id)}
+                          className="bg-destructive hover:bg-destructive/90"
+                        >
                           Supprimer
                         </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
-                   </AlertDialog>
+                  </AlertDialog>
                 </TableCell>
               </TableRow>
             ))}
@@ -502,13 +641,14 @@ function ProjectsList() {
   );
 }
 
-
 export default function AdminProjectsPage() {
   return (
     <div className="space-y-6">
       <header className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Gestion des Projets</h1>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Gestion des Projets
+          </h1>
           <p className="text-muted-foreground">
             Ajoutez, modifiez ou supprimez les projets de votre portfolio.
           </p>
@@ -524,5 +664,3 @@ export default function AdminProjectsPage() {
     </div>
   );
 }
-
-    
