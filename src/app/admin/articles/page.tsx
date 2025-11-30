@@ -90,7 +90,17 @@ const articleSchema = z.object({
     .optional()
     .or(z.literal('')),
   imageHint: z.string().optional(),
-  tags: z.string().optional().transform((val) => val ? val.split(',').map(tag => tag.trim()).filter(Boolean) : []),
+  tags: z
+    .string()
+    .optional()
+    .transform((val) =>
+      val
+        ? val
+            .split(',')
+            .map((tag) => tag.trim())
+            .filter(Boolean)
+        : []
+    ),
   published: z.boolean().default(false),
 });
 
@@ -294,11 +304,11 @@ function ArticleForm({
                   placeholder="Design, Code, Next.js"
                   {...field}
                   value={
-                    Array.isArray(field.value) ? field.value.join(', ') : field.value
+                    Array.isArray(field.value)
+                      ? field.value.join(', ')
+                      : field.value
                   }
                   onChange={(e) => {
-                    // This is handled by the zod transform when the form is submitted.
-                    // For the input component, we just pass the string value.
                     field.onChange(e.target.value);
                   }}
                 />
@@ -381,17 +391,18 @@ function ArticlesList() {
         : null,
     [firestore]
   );
-  const { data: articles = [], isLoading } = useCollection<Article>(articlesQuery);
+  
+  const { data: articles, isLoading } = useCollection<Article>(articlesQuery);
 
   const filteredArticles = React.useMemo(() => {
-    if (!articles) return [];
     if (!searchTerm) return articles;
     return articles.filter(
       (article) =>
-        article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        article.tags?.some((tag) =>
-          tag.toLowerCase().includes(searchTerm.toLowerCase())
-        )
+        article.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (Array.isArray(article.tags) &&
+          article.tags.some((tag) =>
+            tag.toLowerCase().includes(searchTerm.toLowerCase())
+          ))
     );
   }, [articles, searchTerm]);
 
@@ -444,7 +455,7 @@ function ArticlesList() {
                 </TableCell>
               </TableRow>
             )}
-            {!isLoading && filteredArticles?.length === 0 && (
+            {!isLoading && filteredArticles.length === 0 && (
               <TableRow>
                 <TableCell
                   colSpan={5}
@@ -456,86 +467,84 @@ function ArticlesList() {
                 </TableCell>
               </TableRow>
             )}
-            {(Array.isArray(filteredArticles) ? filteredArticles : []).map(
-              (article) => (
-                <TableRow key={article.id}>
-                  <TableCell className="font-medium">{article.title}</TableCell>
-                  <TableCell>
-                    <Badge
-                      variant={article.published ? 'default' : 'secondary'}
-                    >
-                      {article.published ? 'Publié' : 'Brouillon'}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex flex-wrap gap-1">
-                      {article.tags?.map((tag) => (
-                        <Badge key={tag} variant="secondary">
-                          {tag}
-                        </Badge>
-                      ))}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    {article.publishedDate
-                      ? format(
-                          article.publishedDate.toDate(),
-                          "d MMMM yyyy 'à' HH:mm",
-                          { locale: fr }
-                        )
-                      : 'Date non disponible'}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <AlertDialog>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Ouvrir le menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <ArticleDialog article={article}>
-                            <DropdownMenuItem
-                              onSelect={(e) => e.preventDefault()}
-                            >
-                              Modifier
-                            </DropdownMenuItem>
-                          </ArticleDialog>
-                          <AlertDialogTrigger asChild>
-                            <DropdownMenuItem
-                              className="text-destructive"
-                              onSelect={(e) => e.preventDefault()}
-                            >
-                              Supprimer
-                            </DropdownMenuItem>
-                          </AlertDialogTrigger>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Cette action est irréversible. L'article "
-                            {article.title}" sera définitivement supprimé.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Annuler</AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={() => handleDelete(article.id)}
-                            className="bg-destructive hover:bg-destructive/90"
+            {filteredArticles.map((article) => (
+              <TableRow key={article.id}>
+                <TableCell className="font-medium">{article.title}</TableCell>
+                <TableCell>
+                  <Badge
+                    variant={article.published ? 'default' : 'secondary'}
+                  >
+                    {article.published ? 'Publié' : 'Brouillon'}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  <div className="flex flex-wrap gap-1">
+                    {article.tags?.map((tag) => (
+                      <Badge key={tag} variant="secondary">
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
+                </TableCell>
+                <TableCell>
+                  {article.publishedDate
+                    ? format(
+                        article.publishedDate.toDate(),
+                        "d MMMM yyyy 'à' HH:mm",
+                        { locale: fr }
+                      )
+                    : 'Date non disponible'}
+                </TableCell>
+                <TableCell className="text-right">
+                  <AlertDialog>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                          <span className="sr-only">Ouvrir le menu</span>
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <ArticleDialog article={article}>
+                          <DropdownMenuItem
+                            onSelect={(e) => e.preventDefault()}
+                          >
+                            Modifier
+                          </DropdownMenuItem>
+                        </ArticleDialog>
+                        <AlertDialogTrigger asChild>
+                          <DropdownMenuItem
+                            className="text-destructive"
+                            onSelect={(e) => e.preventDefault()}
                           >
                             Supprimer
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </TableCell>
-                </TableRow>
-              )
-            )}
+                          </DropdownMenuItem>
+                        </AlertDialogTrigger>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Cette action est irréversible. L'article "
+                          {article.title}" sera définitivement supprimé.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Annuler</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => handleDelete(article.id)}
+                          className="bg-destructive hover:bg-destructive/90"
+                        >
+                          Supprimer
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </TableCell>
+              </TableRow>
+            ))}
           </TableBody>
         </Table>
       </CardContent>
