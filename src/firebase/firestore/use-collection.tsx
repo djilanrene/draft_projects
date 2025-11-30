@@ -20,9 +20,9 @@ export type WithId<T> = T & { id: string };
  * @template T Type of the document data.
  */
 export interface UseCollectionResult<T> {
-  data: WithId<T>[] | null; // Document data with ID, or null.
-  isLoading: boolean;       // True if loading.
-  error: FirestoreError | Error | null; // Error object, or null.
+  data: WithId<T>[]; // Toujours un tableau, jamais null
+  isLoading: boolean;
+  error: FirestoreError | Error | null;
 }
 
 /* Internal implementation of Query:
@@ -55,17 +55,17 @@ export function useCollection<T = any>(
     memoizedTargetRefOrQuery: ((CollectionReference<DocumentData> | Query<DocumentData>) & {__memo?: boolean})  | null | undefined,
 ): UseCollectionResult<T> {
   type ResultItemType = WithId<T>;
-  type StateDataType = ResultItemType[] | null;
+  type StateDataType = ResultItemType[];
 
-  const [data, setData] = useState<StateDataType>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true); // Start as loading
+  const [data, setData] = useState<StateDataType>([]); // Initialisation avec tableau vide
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<FirestoreError | Error | null>(null);
 
   useEffect(() => {
     // If the query isn't ready, set loading to true and wait.
     if (!memoizedTargetRefOrQuery) {
       setIsLoading(true);
-      setData(null);
+      setData([]); // Tableau vide au lieu de null
       return;
     }
 
@@ -76,7 +76,7 @@ export function useCollection<T = any>(
       memoizedTargetRefOrQuery,
       (snapshot: QuerySnapshot<DocumentData>) => {
         const results: ResultItemType[] = snapshot.docs.map(doc => ({
-          id: doc.id, // Explicitly add the id
+          id: doc.id,
           ...(doc.data() as T),
         }));
         setData(results);
@@ -95,7 +95,7 @@ export function useCollection<T = any>(
         })
 
         setError(contextualError)
-        setData(null)
+        setData([]) // Tableau vide au lieu de null
         setIsLoading(false)
 
         errorEmitter.emit('permission-error', contextualError);
